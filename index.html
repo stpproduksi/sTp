@@ -1,1 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Input Produksi</title>
+  <style>
+    body{font-family:Arial;padding:15px;background:#f5f5f5}
+   .card{background:#fff;padding:15px;border-radius:10px;box-shadow:0 2px 5px #ccc}
+    input,select,button{width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:5px}
+    button{background:#28a745;color:#fff;border:none;font-weight:bold}
+    button.edit{background:#007bff}
+    h3{text-align:center}
+  </style>
+</head>
+<body>
+<div class="card">
+  <h3>INPUT PRODUKSI</h3>
+  <button onclick="mode='input';render()">+ Tambah Data</button>
+  <button class="edit" onclick="mode='edit';render()">✏️ Edit Data</button>
+  <div id="form"></div>
+</div>
 
+<script>
+const API = "GANTI_DENGAN_WEB_APP_URL_KAMU";
+let mode='input';
+
+async function call(fn,data){
+  let res = await fetch(API,{method:"POST",body:JSON.stringify({fn,data})});
+  return res.json();
+}
+
+function render(){
+  let h=`<label>Jenis</label><select id="j" onchange="renderForm()"><option>GILING</option><option>EXTRUDER</option><option>THERMO</option></select>
+  <label>Tanggal</label><input type="date" id="t" value="${new Date().toISOString().split('T')[0]}">
+  <label>Produk</label><select id="p"></select>`;
+  if(mode=='edit')h+=`<button onclick="cari()">CARI DATA</button><hr>`;
+  h+=`<div id="d"></div><button onclick="simpan()">SIMPAN</button>`;
+  form.innerHTML=h; loadProduk(); renderForm();
+}
+
+function renderForm(){
+  let j=document.getElementById("j").value,h="";
+  if(mode=='input' && j!="THERMO")h+=`<label>Isi Ke Shift</label><select id="st"><option>SHIFT 1</option><option>SHIFT 2</option><option>SHIFT 3</option></select><label>Nilai</label><input type="number" id="vs">`;
+  if(j=="GILING")h+=`<label>WASTE</label><input id="WASTE"><label>NAMA1</label><input id="NAMA1"><label>NAMA2</label><input id="NAMA2"><label>NAMA3</label><input id="NAMA3">`;
+  if(j=="EXTRUDER")h+=`<label>BS SHEET</label><input id="BS SHEET"><label>WASTE BATU</label><input id="WASTE BATU"><label>WASTE SAPU</label><input id="WASTE SAPU"><label>NAMA1</label><input id="NAMA1"><label>NAMA2</label><input id="NAMA2"><label>NAMA3</label><input id="NAMA3">`;
+  if(j=="THERMO")h+=`<label>SHIFT</label><select id="SHIFT 1,2,3"><option>SHIFT 1</option><option>SHIFT 2</option><option>SHIFT 3</option></select><label>TF</label><input id="TF"><label>MASUK</label><input id="MASUK"><label>BOX</label><input id="BOX"><label>TONASE</label><input id="TONASE"><label>WASTE</label><input id="WASTE"><label>SALDO AKHIR</label><input id="SALDO AKHIR">`;
+  d.innerHTML=h;
+}
+
+async function loadProduk(){
+  let l=await call("getMasterProduk");
+  l.forEach(x=>p.add(new Option(x[0],x[0])));
+}
+
+async function cari(){
+  let r=await call("getDataSheet",{jenis:j.value,tanggal:t.value,produk:p.value});
+  if(!r){alert("Data tidak ditemukan");return}
+  let h="";r.headers.forEach((x,i)=>{if(x!="TANGGAL"&&x!="NAMA PRODUK")h+=`<label>${x}</label><input id="e_${x}" value="${r.data[i]||''}">`});
+  d.innerHTML=h;
+}
+
+async function simpan(){
+  let data={jenis:j.value,tanggal:t.value,produk:p.value};
+  document.querySelectorAll("#d input,#d select").forEach(e=>{if(e.value)data[e.id.replace("e_","")]=e.value});
+  if(document.getElementById("st"))data[document.getElementById("st").value]=document.getElementById("vs").value;
+  let r=await call("saveData",data);
+  alert(r.status);
+  if(confirm("Kirim ke WA?"))window.open(await call("shareToWA",{jenis:data.jenis,row:r.row}));
+}
+</script>
+</body>
+</html>
