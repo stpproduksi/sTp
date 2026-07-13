@@ -6,14 +6,14 @@
   <title>Input Produksi</title>
   <style>
     body{font-family:Arial;padding:15px;background:#f5f5f5}
-   .card{background:#fff;padding:15px;border-radius:10px;box-shadow:0 2px 5px #ccc}
+  .card{background:#fff;padding:15px;border-radius:10px;box-shadow:0 2px 5px #ccc}
     input,select,button{width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:5px;box-sizing:border-box}
     button{background:#28a745;color:#fff;border:none;font-weight:bold;font-size:16px}
+   .btn-edit{background:#007bff;margin-top:10px}
     h3{text-align:center;margin-top:0}
     h4{margin:0 0 10px 0; color:#007bff}
     label{font-size:12px; margin-top:5px; display:block}
-   .produk-box{border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:15px; background:#fafafa}
-   .error{color:red; font-size:12px; text-align:center}
+  .produk-box{border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:15px; background:#fafafa}
   </style>
 </head>
 <body>
@@ -28,26 +28,23 @@
   <label>Tanggal</label>
   <input type="date" id="t">
   <div id="form"></div>
-  <div id="err" class="error"></div>
   <button onclick="simpan()">SIMPAN SEMUA</button>
+  <button class="btn-edit" onclick="menuEdit()">EDIT DATA</button>
 </div>
 
 <script>
-const API = "PASTE_URL_WEB_APP_KAMU_DISINI"; // <--- INI WAJIB GANTI
+const API = "PASTE_URL_WEB_APP_KAMU_DISINI";
 document.getElementById('t').value = new Date().toISOString().split('T')[0];
 renderForm();
 
 async function call(fn,data){
-  try{
-    let res = await fetch(API,{method:"POST",body:JSON.stringify({fn,data})});
-    return res.json();
-  }catch(e){
-    document.getElementById("err").innerText = "Error: Cek URL Web App";
-  }
+  let res = await fetch(API,{method:"POST",body:JSON.stringify({fn,data})});
+  return res.json();
 }
 
 function renderForm(){
   let j=document.getElementById("j").value; let h="";
+  
   if(j=="GILING"){
     h+=`<label>NAMA PRODUK</label><select id="p"></select>
     <label>SHIFT 1</label><input type="number" id="s1">
@@ -55,18 +52,26 @@ function renderForm(){
     <label>SHIFT 3</label><input type="number" id="s3">
     <label>WASTE</label><input type="number" id="w">`;
   }
+
+  if(j=="EXTRUDER"){
+    h+=`<label>NAMA PRODUK</label><select id="p"></select>
+    <label>KG/H</label><input type="number" id="kg">
+    <label>OUTPUT</label><input type="number" id="out">
+    <label>WASTE</label><input type="number" id="w">`;
+  }
+
   if(j=="THERMO"){
     h+=`<label>SHIFT</label><select id="SHIFT"><option>SHIFT 1</option><option>SHIFT 2</option><option>SHIFT 3</option></select>`;
     for(let i=1;i<=6;i++){
       h+=`<div class="produk-box">
         <h4>PRODUK ${i}</h4>
         <label>NAMA PRODUK</label><select class="p${i}"></select>
-        <label>TF</label><input type="number" id="TF${i}" placeholder="0">
-        <label>MASUK</label><input type="number" id="MASUK${i}" placeholder="0">
-        <label>BOX</label><input type="number" id="BOX${i}" placeholder="0">
-        <label>TONASE</label><input type="number" id="TONASE${i}" placeholder="0">
-        <label>WASTE</label><input type="number" id="WASTE${i}" placeholder="0">
-        <label>SALDO AKHIR</label><input type="number" id="SALDO${i}" placeholder="0">
+        <label>TF</label><input type="number" id="TF${i}">
+        <label>MASUK</label><input type="number" id="MASUK${i}">
+        <label>BOX</label><input type="number" id="BOX${i}">
+        <label>TONASE</label><input type="number" id="TONASE${i}">
+        <label>WASTE</label><input type="number" id="WASTE${i}">
+        <label>SALDO AKHIR</label><input type="number" id="SALDO${i}">
       </div>`;
     }
   }
@@ -76,7 +81,6 @@ function renderForm(){
 
 async function loadProduk(){
   let l=await call("getMasterProduk");
-  if(!l) return;
   let el = document.getElementById("p");
   if(el) l.forEach(x=>el.add(new Option(x[0],x[0])));
   for(let i=1;i<=6;i++){
@@ -89,28 +93,35 @@ async function simpan(){
   let jenis = document.getElementById("j").value;
   let tanggal = document.getElementById("t").value;
 
+  if(jenis=="GILING"){
+    let d={jenis,tanggal,produk:document.getElementById("p").value,"SHIFT 1":document.getElementById("s1").value,"SHIFT 2":document.getElementById("s2").value,"SHIFT 3":document.getElementById("s3").value,WASTE:document.getElementById("w").value}
+    await call("saveData",d);
+    alert("Data GILING Tersimpan");
+  }
+
+  if(jenis=="EXTRUDER"){
+    let d={jenis,tanggal,produk:document.getElementById("p").value,"KG/H":document.getElementById("kg").value,OUTPUT:document.getElementById("out").value,WASTE:document.getElementById("w").value}
+    await call("saveData",d);
+    alert("Data EXTRUDER Tersimpan");
+  }
+
   if(jenis=="THERMO"){
     let shift = document.getElementById("SHIFT").value;
     let semuaData = [];
     for(let i=1;i<=6;i++){
       let tf = document.getElementById(`TF${i}`).value;
       if(tf){
-        let d = {
-          jenis: "THERMO", tanggal: tanggal, produk: document.querySelector(`.p${i}`).value,
-          "SHIFT 1,2,3": shift, TF: tf, MASUK: document.getElementById(`MASUK${i}`).value,
-          BOX: document.getElementById(`BOX${i}`).value, TONASE: document.getElementById(`TONASE${i}`).value,
-          WASTE: document.getElementById(`WASTE${i}`).value, "SALDO AKHIR": document.getElementById(`SALDO${i}`).value,
-        }
+        let d = {jenis,tanggal,produk:document.querySelector(`.p${i}`).value,"SHIFT 1,2,3":shift,TF:tf,MASUK:document.getElementById(`MASUK${i}`).value,BOX:document.getElementById(`BOX${i}`).value,TONASE:document.getElementById(`TONASE${i}`).value,WASTE:document.getElementById(`WASTE${i}`).value,"SALDO AKHIR":document.getElementById(`SALDO${i}`).value}
         await call("saveData",d);
         semuaData.push(d);
       }
     }
     alert(semuaData.length + " Produk Tersimpan");
-    if(semuaData.length > 0 && confirm("Kirim semua ke WA?")){
-      let link = await call("shareToWA",{jenis,tanggal,shift,dataArray:semuaData});
-      window.open(link);
-    }
   }
+}
+
+function menuEdit(){
+  alert("Menu Edit: Buka Sheet langsung untuk edit. \n\nAtau mau aku buatin form edit per tanggal?");
 }
 </script>
 </body>
