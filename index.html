@@ -44,7 +44,7 @@ function renderForm(){
   if(mode=='input' && j!="THERMO")h+=`<label>Isi Ke Shift</label><select id="st"><option>SHIFT 1</option><option>SHIFT 2</option><option>SHIFT 3</option></select><label>Nilai</label><input type="number" id="vs">`;
   if(j=="GILING")h+=`<label>WASTE</label><input id="WASTE"><label>NAMA1</label><input id="NAMA1"><label>NAMA2</label><input id="NAMA2"><label>NAMA3</label><input id="NAMA3">`;
   if(j=="EXTRUDER")h+=`<label>BS SHEET</label><input id="BS SHEET"><label>WASTE BATU</label><input id="WASTE BATU"><label>WASTE SAPU</label><input id="WASTE SAPU"><label>NAMA1</label><input id="NAMA1"><label>NAMA2</label><input id="NAMA2"><label>NAMA3</label><input id="NAMA3">`;
-  if(j=="THERMO")h+=`<label>SHIFT</label><select id="SHIFT 1,2,3"><option>SHIFT 1</option><option>SHIFT 2</option><option>SHIFT 3</option></select><label>TF</label><input id="TF"><label>MASUK</label><input id="MASUK"><label>BOX</label><input id="BOX"><label>TONASE</label><input id="TONASE"><label>WASTE</label><input id="WASTE"><label>SALDO AKHIR</label><input id="SALDO AKHIR">`;
+  if(j=="THERMO")h+=`<label>SHIFT</label><select id="SHIFT 1,2,3"><option>SHIFT 1</option><option>SHIFT 2</option><option>SHIFT 3</option></select><label>TF</label><input id="TF"><label>MASUK</label><input id="MASUK"><label>BOX</label><input id="BOX"><label>GRAM</label><input id="GRAM"><label>WASTE</label><input id="WASTE"><label>SALDO AKHIR</label><input id="SALDO AKHIR">`;
   d.innerHTML=h;
 }
 
