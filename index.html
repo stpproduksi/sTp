@@ -13,6 +13,7 @@
     h4{margin:0 0 10px 0; color:#007bff}
     label{font-size:12px; margin-top:5px; display:block}
    .produk-box{border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:15px; background:#fafafa}
+   .error{color:red; font-size:12px; text-align:center}
   </style>
 </head>
 <body>
@@ -20,26 +21,40 @@
   <h3>INPUT PRODUKSI</h3>
   <label>Jenis</label>
   <select id="j" onchange="renderForm()">
-    <option>GILING</option><option>EXTRUDER</option><option>THERMO</option>
+    <option>GILING</option>
+    <option>EXTRUDER</option>
+    <option>THERMO</option>
   </select>
   <label>Tanggal</label>
   <input type="date" id="t">
   <div id="form"></div>
+  <div id="err" class="error"></div>
   <button onclick="simpan()">SIMPAN SEMUA</button>
 </div>
 
 <script>
-const API = "GANTI_DENGAN_WEB_APP_URL_KAMU";
+const API = "PASTE_URL_WEB_APP_KAMU_DISINI"; // <--- INI WAJIB GANTI
 document.getElementById('t').value = new Date().toISOString().split('T')[0];
 renderForm();
 
 async function call(fn,data){
-  let res = await fetch(API,{method:"POST",body:JSON.stringify({fn,data})});
-  return res.json();
+  try{
+    let res = await fetch(API,{method:"POST",body:JSON.stringify({fn,data})});
+    return res.json();
+  }catch(e){
+    document.getElementById("err").innerText = "Error: Cek URL Web App";
+  }
 }
 
 function renderForm(){
   let j=document.getElementById("j").value; let h="";
+  if(j=="GILING"){
+    h+=`<label>NAMA PRODUK</label><select id="p"></select>
+    <label>SHIFT 1</label><input type="number" id="s1">
+    <label>SHIFT 2</label><input type="number" id="s2">
+    <label>SHIFT 3</label><input type="number" id="s3">
+    <label>WASTE</label><input type="number" id="w">`;
+  }
   if(j=="THERMO"){
     h+=`<label>SHIFT</label><select id="SHIFT"><option>SHIFT 1</option><option>SHIFT 2</option><option>SHIFT 3</option></select>`;
     for(let i=1;i<=6;i++){
@@ -61,9 +76,12 @@ function renderForm(){
 
 async function loadProduk(){
   let l=await call("getMasterProduk");
+  if(!l) return;
+  let el = document.getElementById("p");
+  if(el) l.forEach(x=>el.add(new Option(x[0],x[0])));
   for(let i=1;i<=6;i++){
-    let el = document.querySelector(`.p${i}`);
-    if(el) l.forEach(x=>el.add(new Option(x[0],x[0])));
+    let el2 = document.querySelector(`.p${i}`);
+    if(el2) l.forEach(x=>el2.add(new Option(x[0],x[0])));
   }
 }
 
@@ -78,16 +96,10 @@ async function simpan(){
       let tf = document.getElementById(`TF${i}`).value;
       if(tf){
         let d = {
-          jenis: "THERMO",
-          tanggal: tanggal,
-          produk: document.querySelector(`.p${i}`).value,
-          "SHIFT 1,2,3": shift,
-          TF: tf,
-          MASUK: document.getElementById(`MASUK${i}`).value,
-          BOX: document.getElementById(`BOX${i}`).value,
-          TONASE: document.getElementById(`TONASE${i}`).value,
-          WASTE: document.getElementById(`WASTE${i}`).value,
-          "SALDO AKHIR": document.getElementById(`SALDO${i}`).value,
+          jenis: "THERMO", tanggal: tanggal, produk: document.querySelector(`.p${i}`).value,
+          "SHIFT 1,2,3": shift, TF: tf, MASUK: document.getElementById(`MASUK${i}`).value,
+          BOX: document.getElementById(`BOX${i}`).value, TONASE: document.getElementById(`TONASE${i}`).value,
+          WASTE: document.getElementById(`WASTE${i}`).value, "SALDO AKHIR": document.getElementById(`SALDO${i}`).value,
         }
         await call("saveData",d);
         semuaData.push(d);
