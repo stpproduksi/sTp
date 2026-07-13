@@ -7,66 +7,98 @@
   <style>
     body{font-family:Arial;padding:15px;background:#f5f5f5}
    .card{background:#fff;padding:15px;border-radius:10px;box-shadow:0 2px 5px #ccc}
-    input,select,button{width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:5px}
-    button{background:#28a745;color:#fff;border:none;font-weight:bold}
-    button.edit{background:#007bff}
-    h3{text-align:center}
+    input,select,button{width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:5px;box-sizing:border-box}
+    button{background:#28a745;color:#fff;border:none;font-weight:bold;font-size:16px}
+    h3{text-align:center;margin-top:0}
+    h4{margin:0 0 10px 0; color:#007bff}
+    label{font-size:12px; margin-top:5px; display:block}
+   .produk-box{border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:15px; background:#fafafa}
   </style>
 </head>
 <body>
 <div class="card">
   <h3>INPUT PRODUKSI</h3>
-  <button onclick="mode='input';render()">+ Tambah Data</button>
-  <button class="edit" onclick="mode='edit';render()">✏️ Edit Data</button>
+  <label>Jenis</label>
+  <select id="j" onchange="renderForm()">
+    <option>GILING</option><option>EXTRUDER</option><option>THERMO</option>
+  </select>
+  <label>Tanggal</label>
+  <input type="date" id="t">
   <div id="form"></div>
+  <button onclick="simpan()">SIMPAN SEMUA</button>
 </div>
 
 <script>
 const API = "GANTI_DENGAN_WEB_APP_URL_KAMU";
-let mode='input';
+document.getElementById('t').value = new Date().toISOString().split('T')[0];
+renderForm();
 
 async function call(fn,data){
   let res = await fetch(API,{method:"POST",body:JSON.stringify({fn,data})});
   return res.json();
 }
 
-function render(){
-  let h=`<label>Jenis</label><select id="j" onchange="renderForm()"><option>GILING</option><option>EXTRUDER</option><option>THERMO</option></select>
-  <label>Tanggal</label><input type="date" id="t" value="${new Date().toISOString().split('T')[0]}">
-  <label>Produk</label><select id="p"></select>`;
-  if(mode=='edit')h+=`<button onclick="cari()">CARI DATA</button><hr>`;
-  h+=`<div id="d"></div><button onclick="simpan()">SIMPAN</button>`;
-  form.innerHTML=h; loadProduk(); renderForm();
-}
-
 function renderForm(){
-  let j=document.getElementById("j").value,h="";
-  if(mode=='input' && j!="THERMO")h+=`<label>Isi Ke Shift</label><select id="st"><option>SHIFT 1</option><option>SHIFT 2</option><option>SHIFT 3</option></select><label>Nilai</label><input type="number" id="vs">`;
-  if(j=="GILING")h+=`<label>WASTE</label><input id="WASTE"><label>NAMA1</label><input id="NAMA1"><label>NAMA2</label><input id="NAMA2"><label>NAMA3</label><input id="NAMA3">`;
-  if(j=="EXTRUDER")h+=`<label>BS SHEET</label><input id="BS SHEET"><label>WASTE BATU</label><input id="WASTE BATU"><label>WASTE SAPU</label><input id="WASTE SAPU"><label>NAMA1</label><input id="NAMA1"><label>NAMA2</label><input id="NAMA2"><label>NAMA3</label><input id="NAMA3">`;
-  if(j=="THERMO")h+=`<label>SHIFT</label><select id="SHIFT 1,2,3"><option>SHIFT 1</option><option>SHIFT 2</option><option>SHIFT 3</option></select><label>TF</label><input id="TF"><label>MASUK</label><input id="MASUK"><label>BOX</label><input id="BOX"><label>GRAM</label><input id="GRAM"><label>WASTE</label><input id="WASTE"><label>SALDO AKHIR</label><input id="SALDO AKHIR">`;
-  d.innerHTML=h;
+  let j=document.getElementById("j").value; let h="";
+  if(j=="THERMO"){
+    h+=`<label>SHIFT</label><select id="SHIFT"><option>SHIFT 1</option><option>SHIFT 2</option><option>SHIFT 3</option></select>`;
+    for(let i=1;i<=6;i++){
+      h+=`<div class="produk-box">
+        <h4>PRODUK ${i}</h4>
+        <label>NAMA PRODUK</label><select class="p${i}"></select>
+        <label>TF</label><input type="number" id="TF${i}" placeholder="0">
+        <label>MASUK</label><input type="number" id="MASUK${i}" placeholder="0">
+        <label>BOX</label><input type="number" id="BOX${i}" placeholder="0">
+        <label>TONASE</label><input type="number" id="TONASE${i}" placeholder="0">
+        <label>WASTE</label><input type="number" id="WASTE${i}" placeholder="0">
+        <label>SALDO AKHIR</label><input type="number" id="SALDO${i}" placeholder="0">
+      </div>`;
+    }
+  }
+  document.getElementById("form").innerHTML=h;
+  loadProduk();
 }
 
 async function loadProduk(){
   let l=await call("getMasterProduk");
-  l.forEach(x=>p.add(new Option(x[0],x[0])));
-}
-
-async function cari(){
-  let r=await call("getDataSheet",{jenis:j.value,tanggal:t.value,produk:p.value});
-  if(!r){alert("Data tidak ditemukan");return}
-  let h="";r.headers.forEach((x,i)=>{if(x!="TANGGAL"&&x!="NAMA PRODUK")h+=`<label>${x}</label><input id="e_${x}" value="${r.data[i]||''}">`});
-  d.innerHTML=h;
+  for(let i=1;i<=6;i++){
+    let el = document.querySelector(`.p${i}`);
+    if(el) l.forEach(x=>el.add(new Option(x[0],x[0])));
+  }
 }
 
 async function simpan(){
-  let data={jenis:j.value,tanggal:t.value,produk:p.value};
-  document.querySelectorAll("#d input,#d select").forEach(e=>{if(e.value)data[e.id.replace("e_","")]=e.value});
-  if(document.getElementById("st"))data[document.getElementById("st").value]=document.getElementById("vs").value;
-  let r=await call("saveData",data);
-  alert(r.status);
-  if(confirm("Kirim ke WA?"))window.open(await call("shareToWA",{jenis:data.jenis,row:r.row}));
+  let jenis = document.getElementById("j").value;
+  let tanggal = document.getElementById("t").value;
+
+  if(jenis=="THERMO"){
+    let shift = document.getElementById("SHIFT").value;
+    let semuaData = [];
+    for(let i=1;i<=6;i++){
+      let tf = document.getElementById(`TF${i}`).value;
+      if(tf){
+        let d = {
+          jenis: "THERMO",
+          tanggal: tanggal,
+          produk: document.querySelector(`.p${i}`).value,
+          "SHIFT 1,2,3": shift,
+          TF: tf,
+          MASUK: document.getElementById(`MASUK${i}`).value,
+          BOX: document.getElementById(`BOX${i}`).value,
+          TONASE: document.getElementById(`TONASE${i}`).value,
+          WASTE: document.getElementById(`WASTE${i}`).value,
+          "SALDO AKHIR": document.getElementById(`SALDO${i}`).value,
+        }
+        await call("saveData",d);
+        semuaData.push(d);
+      }
+    }
+    alert(semuaData.length + " Produk Tersimpan");
+    if(semuaData.length > 0 && confirm("Kirim semua ke WA?")){
+      let link = await call("shareToWA",{jenis,tanggal,shift,dataArray:semuaData});
+      window.open(link);
+    }
+  }
 }
 </script>
 </body>
