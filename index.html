@@ -126,3 +126,200 @@ function menuEdit(){
 </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Input Produksi</title>
+  <style>
+    body{font-family:Arial;padding:15px;background:#f5f5f5}
+.card{background:#fff;padding:15px;border-radius:10px;box-shadow:0 2px 5px #ccc}
+    input,select,button{width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:5px;box-sizing:border-box}
+    button{background:#28a745;color:#fff;border:none;font-weight:bold;font-size:16px}
+.btn-edit{background:#007bff}
+.btn-load{background:#ffc107; color:#000}
+.btn-hapus{background:#dc3545}
+    h3{text-align:center;margin-top:0}
+    h4{margin:0 0 10px 0; color:#007bff; display:flex; justify-content:space-between}
+.produk-box{border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:15px; background:#fafafa; position:relative}
+.btn-del{width:auto; padding:3px 8px; font-size:12px; background:#dc3545; position:absolute; top:5px; right:5px}
+  </style>
+</head>
+<body>
+<div class="card">
+  <h3 id="judul">INPUT PRODUKSI</h3>
+  <label>Mode</label>
+  <select id="mode" onchange="toggleMode()">
+    <option value="input">INPUT BARU</option>
+    <option value="edit">EDIT DATA</option>
+  </select>
+
+  <label>Jenis</label>
+  <select id="j" onchange="renderForm()">
+    <option>GILING</option><option>EXTRUDER</option><option>THERMO</option>
+  </select>
+  <label>Tanggal</label>
+  <input type="date" id="t">
+  <button class="btn-load" onclick="loadDataEdit()" id="btnLoad" style="display:none">LOAD DATA</button>
+
+  <div id="form"></div>
+  <button id="btnSimpan" onclick="simpan()">SIMPAN & SHARE WA</button>
+</div>
+
+<script>
+const API = "PASTE_URL_WEB_APP_KAMU_DISINI";
+document.getElementById('t').value = new Date().toISOString().split('T')[0];
+renderForm();
+
+async function call(fn,data){
+  let res = await fetch(API,{method:"POST",body:JSON.stringify({fn,data})});
+  return res.json();
+}
+
+function toggleMode(){
+  let mode = document.getElementById("mode").value;
+  document.getElementById("btnLoad").style.display = mode=="edit"? "block" : "none";
+  document.getElementById("judul").innerText = mode=="edit"? "EDIT PRODUKSI" : "INPUT PRODUKSI";
+  renderForm();
+}
+
+function renderForm(data=[]){
+  let j=document.getElementById("j").value; let h=""; let mode = document.getElementById("mode").value;
+  const listTF = ["TF4","TF5","TF6","TF7","TF8","TF9","TF10","TF11","TF12","TF13","TF14","TF15","TF16","TF11L","TF11P"];
+
+  if(j=="GILING" || j=="EXTRUDER"){
+    h+=`<label>SHIFT</label><select id="SHIFT"><option>SHIFT 1</option><option>SHIFT 2</option><option>SHIFT 3</option></select>`;
+    for(let i=1;i<=6;i++){
+      let d = data[i-1] || {};
+      h+=`<div class="produk-box">
+        <h4>PRODUK ${i} ${mode=="edit" && d.row? `<button class="btn-del" onclick="hapus(${d.row},'${j}')">HAPUS</button>` : ''}</h4>
+        <input type="hidden" id="ROW${i}" value="${d.row || ''}">
+        <label>NAMA PRODUK</label><select class="p${i}"></select>
+        <label>JUMLAH</label><input type="number" id="JML${i}" value="${d.JUMLAH || ''}">
+      </div>`;
+    }
+  }
+
+  if(j=="THERMO"){
+    h+=`<label>SHIFT</label><select id="SHIFT"><option>SHIFT 1</option><option>SHIFT 2</option><option>SHIFT 3</option></select>`;
+    for(let i=1;i<=6;i++){
+      let d = data[i-1] || {};
+      let tfOptions = `<option value="">Pilih TF</option>`;
+      listTF.forEach(tf => tfOptions += `<option value="${tf}" ${d.TF==tf?'selected':''}>${tf}</option>`);
+
+      h+=`<div class="produk-box">
+        <h4>PRODUK ${i} ${mode=="edit" && d.row? `<button class="btn-del" onclick="hapus(${d.row},'${j}')">HAPUS</button>` : ''}</h4>
+        <input type="hidden" id="ROW${i}" value="${d.row || ''}">
+        <label>NAMA PRODUK</label><select class="p${i}"></select>
+        <label>TF</label><select id="TF${i}">${tfOptions}</select>
+        <label>MASUK</label><input type="number" id="MASUK${i}" value="${d.MASUK || ''}">
+        <label>BOX</label><input type="number" id="BOX${i}" value="${d.BOX || ''}">
+        <label>TONASE</label><input type="number" id="TONASE${i}" value="${d.TONASE || ''}">
+        <label>WASTE</label><input type="number" id="WASTE${i}" value="${d.WASTE || ''}">
+        <label>SALDO AKHIR</label><input type="number" id="SALDO${i}" value="${d['SALDO AKHIR'] || ''}">
+      </div>`;
+    }
+  }
+  document.getElementById("form").innerHTML=h;
+  loadProduk(data);
+  if(data[0]) document.getElementById("SHIFT").value = data[0]["SHIFT 1,2,3"];
+}
+
+async function loadProduk(data=[]){
+  let l=await call("getMasterProduk");
+  for(let i=1;i<=6;i++){
+    let el2 = document.querySelector(`.p${i}`);
+    if(el2){
+      l.forEach(x=>el2.add(new Option(x[0],x[0])));
+      if(data[i-1]) el2.value = data[i-1]["NAMA PRODUK"];
+    }
+  }
+}
+
+async function loadDataEdit(){
+  let jenis = document.getElementById("j").value;
+  let tanggal = document.getElementById("t").value;
+  let data = await call("getDataByDate",{jenis,tanggal});
+  renderForm(data);
+  alert(data.length + " Data Ditemukan");
+}
+
+async function simpan(){
+  let jenis = document.getElementById("j").value;
+  let tanggal = document.getElementById("t").value;
+  let shift = document.getElementById("SHIFT").value;
+  let mode = document.getElementById("mode").value;
+  let semuaData = [];
+
+  let header = "";
+  if(jenis=="GILING" || jenis=="EXTRUDER"){
+    header = `| NO | PRODUK | JUMLAH |
+|----|---------------|--------|`;
+  }
+  if(jenis=="THERMO"){
+    header = `| NO | TF | PRODUK | MASUK | BOX | TONASE | WASTE | SALDO |
+|----|--------|--------------|-------|-----|--------|-------|-------|`;
+  }
+
+  let isiTabel = "";
+
+  for(let i=1;i<=6;i++){
+    let produkEl = document.querySelector(`.p${i}`);
+    if(!produkEl) continue;
+    let produk = produkEl.value;
+    let row = document.getElementById(`ROW${i}`).value;
+
+    if(jenis=="GILING" || jenis=="EXTRUDER"){
+      let jml = document.getElementById(`JML${i}`).value;
+      if(jml){
+        let d = {jenis,tanggal,row,"SHIFT 1,2,3":shift,"NAMA PRODUK":produk,JUMLAH:jml}
+        mode=="edit"? await call("updateData",d) : await call("saveData",d);
+        semuaData.push(d);
+        isiTabel += `| ${i} | ${produk.padEnd(13)} | ${jml.padStart(6)} |\n`;
+      }
+    }
+
+    if(jenis=="THERMO"){
+      let tf = document.getElementById(`TF${i}`).value;
+      if(tf){
+        let mas = document.getElementById(`MASUK${i}`).value || "0";
+        let box = document.getElementById(`BOX${i}`).value || "0";
+        let ton = document.getElementById(`TONASE${i}`).value || "0";
+        let was = document.getElementById(`WASTE${i}`).value || "0";
+        let sal = document.getElementById(`SALDO${i}`).value || "0";
+        let d = {
+          jenis,tanggal,row,"NAMA PRODUK":produk,"SHIFT 1,2,3":shift,
+          TF:tf, MASUK:mas, BOX:box, TONASE:ton, WASTE:was, "SALDO AKHIR":sal,
+        }
+        mode=="edit"? await call("updateData",d) : await call("saveData",d);
+        semuaData.push(d);
+        isiTabel += `| ${i} | ${tf.padEnd(6)} | ${produk.substring(0,12).padEnd(12)} | ${mas.padStart(5)} | ${box.padStart(3)} | ${ton.padStart(6)} | ${was.padStart(5)} | ${sal.padStart(5)} |\n`;
+      }
+    }
+  }
+
+  alert(semuaData.length + " Data Diproses");
+
+  if(semuaData.length > 0 && confirm("Kirim ke WA?")){
+    let pesan = `*${jenis} - ${mode=="edit"?"UPDATE":"BARU"}*
+Tgl: ${tanggal}
+Shift: ${shift}
+
+\`\`
+${header}
+${isiTabel}\`\``;
+    window.open("https://wa.me/?text="+encodeURIComponent(pesan));
+  }
+}
+
+async function hapus(row, jenis){
+  if(confirm("Yakin mau hapus data ini?")){
+    await call("deleteData",{jenis,row});
+    alert("Data Dihapus");
+    loadDataEdit();
+  }
+}
+</script>
+</body>
+</html>
