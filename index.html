@@ -44,7 +44,7 @@
 
 <script>
 const API = "PASTE_URL_WEB_APP_KAMU_DISINI";
-let jumlahProduk = 1; // mulai dari 1
+let jumlahProduk = 1;
 let listMasterProduk = [];
 document.getElementById('t').value = new Date().toISOString().split('T')[0];
 loadMaster();
@@ -71,12 +71,8 @@ function resetForm(){
 }
 
 function tambahProduk(){
-  if(jumlahProduk < 20){
-    jumlahProduk++;
-    renderForm();
-  }else{
-    alert("Max 20 Produk");
-  }
+  if(jumlahProduk < 20){ jumlahProduk++; renderForm(); }
+  else{ alert("Max 20 Produk"); }
 }
 
 function renderForm(data=[]){
@@ -109,7 +105,7 @@ function renderForm(data=[]){
         <label>TF</label><select id="TF${i}">${tfOptions}</select>
         <label>MASUK</label><input type="number" id="MASUK${i}" value="${d.MASUK || ''}">
         <label>BOX</label><input type="number" id="BOX${i}" value="${d.BOX || ''}">
-        <label>TONASE</label><input type="number" id="TONASE${i}" value="${d.TONASE || ''}">
+        <label>GRAM</label><input type="number" id="GRAM${i}" value="${d.GRAM || ''}">
         <label>WASTE</label><input type="number" id="WASTE${i}" value="${d.WASTE || ''}">
         <label>SALDO AKHIR</label><input type="number" id="SALDO${i}" value="${d['SALDO AKHIR'] || ''}">
       </div>`;
@@ -144,10 +140,9 @@ async function simpan(){
 
   let header = jenis=="GILING"||jenis=="EXTRUDER"
 ? `| NO | PRODUK | JUMLAH |\n|----|---------------|--------|`
-  : `| NO | TF | PRODUK | MASUK | BOX | TONASE | WASTE | SALDO |\n|----|--------|--------------|-------|-----|--------|-------|-------|`;
+  : `| NO | TF | PRODUK | MASUK | BOX | GRAM | WASTE | SALDO |\n|----|--------|--------------|-------|-----|------|-------|-------|`;
 
-  let isiTabel = "";
-  let no = 1;
+  let isiTabel = ""; let no = 1;
 
   for(let i=1;i<=jumlahProduk;i++){
     let box = document.getElementById(`box${i}`);
@@ -173,13 +168,13 @@ async function simpan(){
       if(tf){
         let mas = document.getElementById(`MASUK${i}`).value || "0";
         let box = document.getElementById(`BOX${i}`).value || "0";
-        let ton = document.getElementById(`TONASE${i}`).value || "0";
+        let gram = document.getElementById(`GRAM${i}`).value || "0";
         let was = document.getElementById(`WASTE${i}`).value || "0";
         let sal = document.getElementById(`SALDO${i}`).value || "0";
-        let d = {jenis,tanggal,row,nama,"NAMA PRODUK":produk,"SHIFT 1,2,3":shift,TF:tf, MASUK:mas, BOX:box, TONASE:ton, WASTE:was, "SALDO AKHIR":sal}
+        let d = {jenis,tanggal,row,nama,"NAMA PRODUK":produk,"SHIFT 1,2,3":shift,TF:tf, MASUK:mas, BOX:box, GRAM:gram, WASTE:was, "SALDO AKHIR":sal}
         mode=="edit"? await call("updateData",d) : await call("saveData",d);
         semuaData.push(d);
-        isiTabel += `| ${no} | ${tf.padEnd(6)} | ${produk.substring(0,12).padEnd(12)} | ${mas.padStart(5)} | ${box.padStart(3)} | ${ton.padStart(6)} | ${was.padStart(5)} | ${sal.padStart(5)} |\n`;
+        isiTabel += `| ${no} | ${tf.padEnd(6)} | ${produk.substring(0,12).padEnd(12)} | ${mas.padStart(5)} | ${box.padStart(3)} | ${gram.padStart(6)} | ${was.padStart(5)} | ${sal.padStart(5)} |\n`;
         no++;
       }
     }
