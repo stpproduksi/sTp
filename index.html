@@ -32,6 +32,9 @@
   </select>
   <label>Tanggal</label>
   <input type="date" id="t">
+  <label>Nama Petugas</label>
+  <input type="text" id="nama" placeholder="Isi Nama Anda">
+
   <button class="btn-load" onclick="loadDataEdit()" id="btnLoad" style="display:none">LOAD DATA TANGGAL INI</button>
 
   <div id="form"></div>
@@ -86,7 +89,7 @@ function renderForm(data=[]){
     let d = data[i-1] || {};
     let produkOptions = `<option value="">Pilih Produk</option>`;
     listMasterProduk.forEach(x=> produkOptions += `<option value="${x[0]}" ${d["NAMA PRODUK"]==x[0]?'selected':''}>${x[0]}</option>`);
-    
+
     if(j=="GILING" || j=="EXTRUDER"){
       h+=`<div class="produk-box" id="box${i}">
         <h4>PRODUK ${i} ${mode=="edit" && d.row? `<button class="btn-del" onclick="hapus(${d.row},'${j}',${i})">HAPUS</button>` : `<button class="btn-del" onclick="hapusForm(${i})">X</button>`}</h4>
@@ -117,7 +120,7 @@ function renderForm(data=[]){
 }
 
 function hapusForm(i){
-  document.getElementById(`box${i}`).style.display = "none"; // sembunyikan aja
+  document.getElementById(`box${i}`).style.display = "none";
 }
 
 async function loadDataEdit(){
@@ -130,6 +133,9 @@ async function loadDataEdit(){
 }
 
 async function simpan(){
+  let nama = document.getElementById("nama").value;
+  if(!nama){alert("Isi Nama Petugas dulu"); return;}
+
   let jenis = document.getElementById("j").value;
   let tanggal = document.getElementById("t").value;
   let shift = document.getElementById("SHIFT").value;
@@ -145,8 +151,8 @@ async function simpan(){
 
   for(let i=1;i<=jumlahProduk;i++){
     let box = document.getElementById(`box${i}`);
-    if(!box || box.style.display=="none") continue; // skip yg dihapus
-    
+    if(!box || box.style.display=="none") continue;
+
     let produk = document.getElementById(`P${i}`).value;
     let row = document.getElementById(`ROW${i}`).value;
     if(!produk) continue;
@@ -154,7 +160,7 @@ async function simpan(){
     if(jenis=="GILING" || jenis=="EXTRUDER"){
       let jml = document.getElementById(`JML${i}`).value;
       if(jml){
-        let d = {jenis,tanggal,row,"SHIFT 1,2,3":shift,"NAMA PRODUK":produk,JUMLAH:jml}
+        let d = {jenis,tanggal,row,nama,"SHIFT 1,2,3":shift,"NAMA PRODUK":produk,JUMLAH:jml}
         mode=="edit"? await call("updateData",d) : await call("saveData",d);
         semuaData.push(d);
         isiTabel += `| ${no} | ${produk.padEnd(13)} | ${jml.padStart(6)} |\n`;
@@ -170,7 +176,7 @@ async function simpan(){
         let ton = document.getElementById(`TONASE${i}`).value || "0";
         let was = document.getElementById(`WASTE${i}`).value || "0";
         let sal = document.getElementById(`SALDO${i}`).value || "0";
-        let d = {jenis,tanggal,row,"NAMA PRODUK":produk,"SHIFT 1,2,3":shift,TF:tf, MASUK:mas, BOX:box, TONASE:ton, WASTE:was, "SALDO AKHIR":sal}
+        let d = {jenis,tanggal,row,nama,"NAMA PRODUK":produk,"SHIFT 1,2,3":shift,TF:tf, MASUK:mas, BOX:box, TONASE:ton, WASTE:was, "SALDO AKHIR":sal}
         mode=="edit"? await call("updateData",d) : await call("saveData",d);
         semuaData.push(d);
         isiTabel += `| ${no} | ${tf.padEnd(6)} | ${produk.substring(0,12).padEnd(12)} | ${mas.padStart(5)} | ${box.padStart(3)} | ${ton.padStart(6)} | ${was.padStart(5)} | ${sal.padStart(5)} |\n`;
@@ -181,7 +187,7 @@ async function simpan(){
 
   alert(semuaData.length + " Data Diproses");
   if(semuaData.length > 0 && confirm("Kirim ke WA?")){
-    let pesan = `*${jenis} - ${mode=="edit"?"UPDATE":"BARU"}*\nTgl: ${tanggal}\nShift: ${shift}\n\n\`\n${header}\n${isiTabel}\`\``;
+    let pesan = `*${jenis} - ${mode=="edit"?"UPDATE":"BARU"}*\nTgl: ${tanggal}\nShift: ${shift}\nPetugas: ${nama}\n\n\`\n${header}\n${isiTabel}\`\``;
     window.open("https://wa.me/?text="+encodeURIComponent(pesan));
   }
 }
