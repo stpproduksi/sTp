@@ -1,199 +1,129 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <base target="_top">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Input Produksi</title>
-  <style>
-    body{font-family:Arial;padding:10px;background:#f0f2f5;margin:0}
-.card{background:#fff;padding:15px;border-radius:10px;box-shadow:0 2px 8px #0001;margin-bottom:15px}
-    input,select,button{width:100%;padding:12px;margin:6px 0;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;font-size:14px}
-    button{background:#28a745;color:#fff;border:none;font-weight:bold}
-.btn-load{background:#ffc107; color:#000}
-.btn-tambah{background:#17a2b8; margin-top:5px}
-    h3{text-align:center;margin:0 0 15px 0}
-    h4{margin:5px 0 10px 0; color:#007bff; font-size:14px; display:flex; justify-content:space-between}
-.produk-box{border:1px solid #eee; padding:10px; border-radius:8px; margin-bottom:10px; background:#fafafa; position:relative}
-.btn-del{width:60px; padding:5px; font-size:11px; background:#dc3545; position:absolute; top:5px; right:5px}
-  </style>
-</head>
-<body>
-<div class="card">
-  <h3>INPUT PRODUKSI</h3>
-  <label>Mode</label>
-  <select id="mode" onchange="toggleMode()">
-    <option value="input">INPUT BARU</option>
-    <option value="edit">EDIT DATA</option>
-  </select>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body { font-family: Arial; padding: 15px; background:#f5f5f5; }
+      .card { background:white; padding:15px; border-radius:10px; margin-bottom:15px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+      label { display:block; margin-top:10px; font-weight:bold; font-size:14px; }
+      input, select { width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px; box-sizing:border-box; }
+      button { width:100%; padding:12px; margin-top:15px; background:#28a745; color:white; border:none; border-radius:5px; font-size:16px; cursor:pointer; }
+      button:hover { background:#218838; }
+      h2 { text-align:center; color:#333; margin:0 0 10px 0; }
+      .success { color:green; text-align:center; margin-top:10px; }
+    </style>
+  </head>
+  <body>
+    <h2>INPUT PRODUKSI</h2>
 
-  <label>Jenis</label>
-  <select id="j" onchange="resetForm()">
-    <option>GILING</option><option>EXTRUDER</option><option>THERMO</option>
-  </select>
-  <label>Tanggal</label>
-  <input type="date" id="t">
-  <label>Nama Petugas</label>
-  <input type="text" id="nama" placeholder="Isi Nama Anda">
+    <div class="card">
+      <label>Jenis Mesin</label>
+      <select id="jenis" onchange="showForm()">
+        <option value="">--PILIH--</option>
+        <option value="GILING">GILING</option>
+        <option value="EXTRUDER">EXTRUDER</option>
+        <option value="THERMO">THERMO</option>
+      </select>
+    </div>
 
-  <button class="btn-load" onclick="loadDataEdit()" id="btnLoad" style="display:none">LOAD DATA TANGGAL INI</button>
+    <div id="formArea"></div>
 
-  <div id="form"></div>
-  <button class="btn-tambah" onclick="tambahProduk()">+ TAMBAH PRODUK</button>
-  <button id="btnSimpan" onclick="simpan()">SIMPAN & SHARE WA</button>
-</div>
-
-<script>
-const API = "PASTE_URL_WEB_APP_KAMU_DISINI";
-let jumlahProduk = 1;
-let listMasterProduk = [];
-document.getElementById('t').value = new Date().toISOString().split('T')[0];
-loadMaster();
-
-async function call(fn,data){
-  let res = await fetch(API,{method:"POST",body:JSON.stringify({fn,data})});
-  return res.json();
-}
-
-async function loadMaster(){
-  listMasterProduk = await call("getMasterProduk");
-  renderForm();
-}
-
-function toggleMode(){
-  let mode = document.getElementById("mode").value;
-  document.getElementById("btnLoad").style.display = mode=="edit"? "block" : "none";
-  resetForm();
-}
-
-function resetForm(){
-  jumlahProduk = 1;
-  renderForm();
-}
-
-function tambahProduk(){
-  if(jumlahProduk < 20){ jumlahProduk++; renderForm(); }
-  else{ alert("Max 20 Produk"); }
-}
-
-function renderForm(data=[]){
-  let j=document.getElementById("j").value; let h=""; let mode = document.getElementById("mode").value;
-  const listTF = ["TF4","TF5","TF6","TF7","TF8","TF9","TF10","TF11","TF12","TF13","TF14","TF15","TF16","TF11L","TF11P"];
-
-  h+=`<label>SHIFT</label><select id="SHIFT"><option>SHIFT 1</option><option>SHIFT 2</option><option>SHIFT 3</option></select>`;
-
-  for(let i=1;i<=jumlahProduk;i++){
-    let d = data[i-1] || {};
-    let produkOptions = `<option value="">Pilih Produk</option>`;
-    listMasterProduk.forEach(x=> produkOptions += `<option value="${x[0]}" ${d["NAMA PRODUK"]==x[0]?'selected':''}>${x[0]}</option>`);
-
-    if(j=="GILING" || j=="EXTRUDER"){
-      h+=`<div class="produk-box" id="box${i}">
-        <h4>PRODUK ${i} ${mode=="edit" && d.row? `<button class="btn-del" onclick="hapus(${d.row},'${j}',${i})">HAPUS</button>` : `<button class="btn-del" onclick="hapusForm(${i})">X</button>`}</h4>
-        <input type="hidden" id="ROW${i}" value="${d.row || ''}">
-        <label>NAMA PRODUK</label><select id="P${i}">${produkOptions}</select>
-        <label>JUMLAH</label><input type="number" id="JML${i}" value="${d.JUMLAH || ''}">
-      </div>`;
-    }
-
-    if(j=="THERMO"){
-      let tfOptions = `<option value="">Pilih TF</option>`;
-      listTF.forEach(tf => tfOptions += `<option value="${tf}" ${d.TF==tf?'selected':''}>${tf}</option>`);
-      h+=`<div class="produk-box" id="box${i}">
-        <h4>PRODUK ${i} ${mode=="edit" && d.row? `<button class="btn-del" onclick="hapus(${d.row},'${j}',${i})">HAPUS</button>` : `<button class="btn-del" onclick="hapusForm(${i})">X</button>`}</h4>
-        <input type="hidden" id="ROW${i}" value="${d.row || ''}">
-        <label>NAMA PRODUK</label><select id="P${i}">${produkOptions}</select>
-        <label>TF</label><select id="TF${i}">${tfOptions}</select>
-        <label>MASUK</label><input type="number" id="MASUK${i}" value="${d.MASUK || ''}">
-        <label>BOX</label><input type="number" id="BOX${i}" value="${d.BOX || ''}">
-        <label>GRAM</label><input type="number" id="GRAM${i}" value="${d.GRAM || ''}">
-        <label>WASTE</label><input type="number" id="WASTE${i}" value="${d.WASTE || ''}">
-        <label>SALDO AKHIR</label><input type="number" id="SALDO${i}" value="${d['SALDO AKHIR'] || ''}">
-      </div>`;
-    }
-  }
-  document.getElementById("form").innerHTML=h;
-  if(data[0]) document.getElementById("SHIFT").value = data[0]["SHIFT 1,2,3"];
-}
-
-function hapusForm(i){
-  document.getElementById(`box${i}`).style.display = "none";
-}
-
-async function loadDataEdit(){
-  let jenis = document.getElementById("j").value;
-  let tanggal = document.getElementById("t").value;
-  let data = await call("getDataByDate",{jenis,tanggal});
-  jumlahProduk = data.length > 0? data.length : 1;
-  renderForm(data);
-  alert(data.length + " Data Ditemukan");
-}
-
-async function simpan(){
-  let nama = document.getElementById("nama").value;
-  if(!nama){alert("Isi Nama Petugas dulu"); return;}
-
-  let jenis = document.getElementById("j").value;
-  let tanggal = document.getElementById("t").value;
-  let shift = document.getElementById("SHIFT").value;
-  let mode = document.getElementById("mode").value;
-  let semuaData = [];
-
-  let header = jenis=="GILING"||jenis=="EXTRUDER"
-? `| NO | PRODUK | JUMLAH |\n|----|---------------|--------|`
-  : `| NO | TF | PRODUK | MASUK | BOX | GRAM | WASTE | SALDO |\n|----|--------|--------------|-------|-----|------|-------|-------|`;
-
-  let isiTabel = ""; let no = 1;
-
-  for(let i=1;i<=jumlahProduk;i++){
-    let box = document.getElementById(`box${i}`);
-    if(!box || box.style.display=="none") continue;
-
-    let produk = document.getElementById(`P${i}`).value;
-    let row = document.getElementById(`ROW${i}`).value;
-    if(!produk) continue;
-
-    if(jenis=="GILING" || jenis=="EXTRUDER"){
-      let jml = document.getElementById(`JML${i}`).value;
-      if(jml){
-        let d = {jenis,tanggal,row,nama,"SHIFT 1,2,3":shift,"NAMA PRODUK":produk,JUMLAH:jml}
-        mode=="edit"? await call("updateData",d) : await call("saveData",d);
-        semuaData.push(d);
-        isiTabel += `| ${no} | ${produk.padEnd(13)} | ${jml.padStart(6)} |\n`;
-        no++;
+    <script>
+      function showForm(){
+        let jenis = document.getElementById("jenis").value;
+        let html = "";
+        
+        if(jenis == "GILING" || jenis == "EXTRUDER"){
+          html = `
+          <div class="card">
+            <label>Tanggal</label>
+            <input type="date" id="tanggal">
+            
+            <label>Produk</label>
+            <input type="text" id="produk" placeholder="Nama Produk">
+            
+            <label>Shift</label>
+            <select id="shift">
+              <option>SHIFT 1</option>
+              <option>SHIFT 2</option>
+              <option>SHIFT 3</option>
+            </select>
+            
+            <label>Nama Petugas</label>
+            <input type="text" id="nama" placeholder="Nama">
+            
+            <button onclick="save('${jenis}')">SIMPAN</button>
+            <div id="msg"></div>
+          </div>`;
+        }
+        
+        if(jenis == "THERMO"){
+          html = `
+          <div class="card">
+            <label>Tanggal</label>
+            <input type="date" id="tanggal">
+            
+            <label>Produk</label>
+            <input type="text" id="produk" placeholder="Nama Produk">
+            
+            <label>Shift</label>
+            <select id="shift">
+              <option>SHIFT 1</option>
+              <option>SHIFT 2</option>
+              <option>SHIFT 3</option>
+            </select>
+            
+            <label>TF</label>
+            <input type="number" id="tf" placeholder="0">
+            
+            <label>MASUK</label>
+            <input type="number" id="masuk" placeholder="0">
+            
+            <label>BOX</label>
+            <input type="number" id="box" placeholder="0">
+            
+            <label>GRAM</label>
+            <input type="number" id="gram" placeholder="0">
+            
+            <label>WASTE</label>
+            <input type="number" id="waste" placeholder="0">
+            
+            <label>SALDO AKHIR</label>
+            <input type="number" id="saldo" placeholder="0">
+            
+            <label>Nama Petugas</label>
+            <input type="text" id="nama" placeholder="Nama">
+            
+            <button onclick="save('${jenis}')">SIMPAN</button>
+            <div id="msg"></div>
+          </div>`;
+        }
+        
+        document.getElementById("formArea").innerHTML = html;
+        document.getElementById("tanggal").valueAsDate = new Date(); // auto hari ini
       }
-    }
 
-    if(jenis=="THERMO"){
-      let tf = document.getElementById(`TF${i}`).value;
-      if(tf){
-        let mas = document.getElementById(`MASUK${i}`).value || "0";
-        let box = document.getElementById(`BOX${i}`).value || "0";
-        let gram = document.getElementById(`GRAM${i}`).value || "0";
-        let was = document.getElementById(`WASTE${i}`).value || "0";
-        let sal = document.getElementById(`SALDO${i}`).value || "0";
-        let d = {jenis,tanggal,row,nama,"NAMA PRODUK":produk,"SHIFT 1,2,3":shift,TF:tf, MASUK:mas, BOX:box, GRAM:gram, WASTE:was, "SALDO AKHIR":sal}
-        mode=="edit"? await call("updateData",d) : await call("saveData",d);
-        semuaData.push(d);
-        isiTabel += `| ${no} | ${tf.padEnd(6)} | ${produk.substring(0,12).padEnd(12)} | ${mas.padStart(5)} | ${box.padStart(3)} | ${gram.padStart(6)} | ${was.padStart(5)} | ${sal.padStart(5)} |\n`;
-        no++;
+      function save(jenis){
+        let d = {jenis: jenis};
+        d.tanggal = document.getElementById("tanggal").value;
+        d["NAMA PRODUK"] = document.getElementById("produk").value;
+        d["SHIFT 1,2,3"] = document.getElementById("shift").value;
+        d.nama = document.getElementById("nama").value;
+        
+        if(jenis == "THERMO"){
+          d.TF = document.getElementById("tf").value;
+          d.MASUK = document.getElementById("masuk").value;
+          d.BOX = document.getElementById("box").value;
+          d.GRAM = document.getElementById("gram").value;
+          d.WASTE = document.getElementById("waste").value;
+          d["SALDO AKHIR"] = document.getElementById("saldo").value;
+        }
+        
+        google.script.run.withSuccessHandler(function(msg){
+          document.getElementById("msg").innerHTML = "<div class='success'>"+msg+"</div>";
+        }).saveData(d);
       }
-    }
-  }
-
-  alert(semuaData.length + " Data Diproses");
-  if(semuaData.length > 0 && confirm("Kirim ke WA?")){
-    let pesan = `*${jenis} - ${mode=="edit"?"UPDATE":"BARU"}*\nTgl: ${tanggal}\nShift: ${shift}\nPetugas: ${nama}\n\n\`\n${header}\n${isiTabel}\`\``;
-    window.open("https://wa.me/?text="+encodeURIComponent(pesan));
-  }
-}
-
-async function hapus(row, jenis, i){
-  if(confirm("Yakin hapus dari database?")){
-    await call("deleteData",{jenis,row});
-    alert("Data Dihapus");
-    hapusForm(i);
-  }
-}
-</script>
-</body>
+    </script>
+  </body>
 </html>
