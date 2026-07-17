@@ -49,6 +49,7 @@ button{background:#28A745;color:white;border:none;font-weight:bold;cursor:pointe
     <input type="hidden" name="_sheet" value="HASIL THERMO">
     <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl1" required>
     <label>SHIFT</label><select name="SHIFT" required><option value="">PILIH</option><option>1</option><option>2</option><option>3</option></select>
+    <button type="button" class="btn-tambah" onclick="tambahBaris('thermo')">+ TAMBAH PRODUK</button>
     <div id="listProdukThermo"></div>
     <button type="submit">SIMPAN SEMUA</button>
   </form>
@@ -61,6 +62,7 @@ button{background:#28A745;color:white;border:none;font-weight:bold;cursor:pointe
     <input type="hidden" name="_sheet" value="GILING">
     <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl2" required>
     <label>SHIFT</label><select name="SHIFT" required><option value="">PILIH</option><option>1</option><option>2</option><option>3</option></select>
+    <button type="button" class="btn-tambah" onclick="tambahBaris('giling')">+ TAMBAH PRODUK</button>
     <div id="listProdukGiling"></div>
     <button type="submit">SIMPAN SEMUA</button>
   </form>
@@ -73,6 +75,8 @@ button{background:#28A745;color:white;border:none;font-weight:bold;cursor:pointe
     <input type="hidden" name="_sheet" value="EXTRUDER">
     <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl3" required>
     <label>SHIFT</label><select name="SHIFT" required><option value="">PILIH</option><option>1</option><option>2</option><option>3</option></select>
+    <button type="button" class="btn-tambah" onclick="tambahBaris('extruder')">+ TAMBAH PRODUK</button>
+    
     <div id="listProdukExtruder"></div>
     <button type="submit">SIMPAN SEMUA</button>
   </form>
@@ -140,7 +144,7 @@ function tambahBaris(jenis){
   
   document.getElementById(container).insertAdjacentHTML('beforeend', html);
 }
-tambahBaris('thermo'); loadProduk();
+tambahBaris('thermo'); tambahBaris('giling'); tambahBaris('extruder'); loadProduk();
   
 function showTab(id){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
