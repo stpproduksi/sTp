@@ -121,6 +121,7 @@ function tambahBaris(jenis){
 
   let html = `<div class="produk-item" id="item-${id}"><button type="button" class="btn-hapus" onclick="document.getElementById('item-${id}').remove()">X</button>`;
   
+  // INI YG AKU BENERIN. 1 JENIS CUMA 1x INPUT
   if(jenis === 'thermo'){ 
     html += `<label>TF</label><select name="tf" class="select-tf" required>${tfOptions}</select>`;
     html += `<label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>`;
