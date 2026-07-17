@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ID">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INPUT PRODUKSI FG</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box} 
+body{font-family:Arial,sans-serif;padding:0;background:#F0F2F5;margin:0;text-transform:uppercase}
+
+.tabs{display:flex;background:#DDD;position:sticky;top:0;z-index:999} /* z-index dinaikin */
+.tab{flex:1;padding:16px;text-align:center;background:#DDD;border:none;font-weight:bold;font-size:14px;cursor:pointer;color:#555}
+.tab.active{background:#28A745;color:white}
+
+.card{background:white;padding:15px;display:none;margin-bottom:70px}
+.card.active{display:block} 
+h3{display:none}
+
+label{font-weight:bold;font-size:14px;margin-top:8px;display:block}
+input,select,button{width:100%;padding:14px;margin:6px 0 12px 0;border:1px solid #DDD;border-radius:8px;font-size:16px;text-transform:uppercase;background:#F5F5F5; position:relative; z-index:1} /* KASIH Z-INDEX BIAR BISA DI TAP */
+select{appearance:none; -webkit-appearance:none; background-image:url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat:no-repeat; background-position:right 10px center;} /* biar panahnya jelas di HP */
+
+button{background:#28A745;color:white;border:none;font-weight:bold;cursor:pointer}
+.btn-tambah{background:#007BFF}
+.btn-wa{background:#25D366}
+.btn-download{background:#FFC107;color:#000}
+.btn-hapus{background:#DC3545;padding:8px 12px;font-size:16px;width:auto;position:absolute;top:-5px;right:-5px;border-radius:8px;z-index:2}
+
+#msg{position:fixed;bottom:10px;left:5%;width:90%;background:white;padding:12px;border-radius:8px;text-align:center;font-weight:bold;box-shadow:0 2px 10px rgba(0,0,0,0.2);z-index:9999;display:none} /* z-index paling atas */
+.sukses{color:green}.gagal{color:red}
+
+.produk-item{border:2px dashed #28A745;padding:15px 15px 5px 15px;border-radius:12px;margin-bottom:15px;background:#F0FFF1;position:relative}
+.buktiArea{display:none;background:#F9FFF9;padding:15px;border:2px dashed #28A745;border-radius:8px;margin-top:15px;text-align:center}
+.buktiArea canvas{background:white;border:1px solid #CCC;border-radius:8px;margin-bottom:10px;max-width:100%}
+</style>
+</head>
+<body>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('thermo')">HASIL THERMO</button>
+  <button class="tab" onclick="showTab('trxfg')">TRX FG</button>
+  <button class="tab" onclick="showTab('masuk')">BARANG MASUK</button>
+  <button class="tab" onclick="showTab('produk')">TAMBAH PRODUK</button>
+</div>
+
+<div id="thermo" class="card active">
+  <h3>INPUT HASIL THERMO</h3>
+  <form id="formThermo">
+    <input type="hidden" name="_sheet" value="HASIL THERMO">
+    <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl1" required>
+    <label>SHIFT</label><select name="SHIFT" required><option value="">PILIH</option><option>1</option><option>2</option><option>3</option></select>
+    <label>KETERANGAN</label><select name="KETERANGAN" required><option value="">PILIH</option><option>CUSTOMER</option><option>PANDAAN</option><option>KREBET</option></select>
+    <div id="listProdukThermo"></div>
+    <button type="button" class="btn-tambah" onclick="tambahBaris('thermo')">+ TAMBAH PRODUK</button>
+    <button type="submit">SIMPAN SEMUA</button>
+  </form>
+  <div id="buktiThermo" class="buktiArea"></div>
+</div>
+
+<div id="trxfg" class="card">
+  <h3>INPUT TRX FG</h3>
+  <form id="formTrx">
+    <input type="hidden" name="_sheet" value="TRX FG">
+    <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl2" required>
+    <label>NO POL</label><input type="text" name="NO POL">
+    <label>DRIVER</label><input type="text" name="DRIVER">
+    <label>KETERANGAN</label><select name="KETERANGAN" required><option value="">PILIH</option><option>CUSTOMER</option><option>PANDAAN</option><option>KREBET</option></select>
+    <div id="listProdukTrx"></div>
+    <button type="button" class="btn-tambah" onclick="tambahBaris('trx')">+ TAMBAH PRODUK</button>
+    <button type="submit">SIMPAN SEMUA</button>
+  </form>
+  <div id="buktiTrx" class="buktiArea"></div>
+</div>
+
+<div id="masuk" class="card">
+  <h3>INPUT BARANG MASUK</h3>
+  <form id="formMasuk">
+    <input type="hidden" name="_sheet" value="BARANG MASUK">
+    <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl3" required>
+    <label>NO POL</label><input type="text" name="NO POL">
+    <label>DRIVER</label><input type="text" name="DRIVER">
+    <label>KETERANGAN</label><select name="KETERANGAN" required><option value="">PILIH</option><option>CUSTOMER</option><option>PANDAAN</option><option>KREBET</option></select>
+    <div id="listProdukMasuk"></div>
+    <button type="button" class="btn-tambah" onclick="tambahBaris('masuk')">+ TAMBAH PRODUK</button>
+    <button type="submit">SIMPAN SEMUA</button>
+  </form>
+  <div id="buktiMasuk" class="buktiArea"></div>
+</div>
+
+<div id="produk" class="card">
+  <h3>TAMBAH PRODUK BARU</h3>
+  <form id="formProduk">
+    <label>NAMA PRODUK</label><input type="text" name="nama_produk" placeholder="CONTOH: CUP 8 OZ" required>
+    <button type="submit">SIMPAN PRODUK</button>
+  </form>
+</div>
+
+<canvas id="canvasBukti" style="display:none;"></canvas>
+<p id="msg"></p>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDBO0GzMY4VdXpUCkpmNRYUUtnzTYo2bC9TvN0bSnl-i1C_GQagXVP6DZNKpDWSWZ01A/exec';
+let masterProduk = [];
+
+document.getElementById('tgl1').valueAsDate = new Date();
+document.getElementById('tgl2').valueAsDate = new Date();
+document.getElementById('tgl3').valueAsDate = new Date();
+
+function loadProduk(){
+  fetch(SCRIPT_URL + '?action=getProduk').then(res=>res.json()).then(produk=>{
+    masterProduk = produk; updateSemuaDropdown();
+  }).catch(()=>alert('GAGAL LOAD PRODUK DARI MASTER'))
+}
+
+function updateSemuaDropdown(){
+  document.querySelectorAll('.select-produk').forEach(sel=>{
+    let valSekarang = sel.value;
+    sel.innerHTML = '<option value="">PILIH PRODUK</option>';
+    masterProduk.forEach(p=> sel.innerHTML += `<option>${p}</option>`);
+    sel.value = valSekarang;
+  })
+}
+
+function tambahBaris(jenis){
+  const container = jenis === 'thermo'? 'listProdukThermo' : (jenis === 'masuk' ? 'listProdukMasuk' : 'listProdukTrx');
+  const id = Date.now();
+  let options = '<option value="">PILIH PRODUK</option>';
+  masterProduk.forEach(p=> options += `<option>${p}</option>`);
+  const tfOptions = '<option value="">PILIH TF</option><option>TF4</option><option>TF5</option><option>TF6</option><option>TF7</option><option>TF8</option><option>TF9</option><option>TF10</option>';
+  const namaField = jenis==='thermo' ? 'box' : (jenis==='masuk' ? 'terima' : 'kirim');
+  const labelField = jenis==='thermo' ? 'BOX' : (jenis==='masuk' ? 'TERIMA' : 'KIRIM');
+  const html = `
+  <div class="produk-item" id="item-${id}">
+    <button type="button" class="btn-hapus" onclick="document.getElementById('item-${id}').remove()">X</button>
+    ${jenis==='thermo'?`<label>TF</label><select name="tf" class="select-tf" required>${tfOptions}</select>`:''}
+    <label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>
+    <label>${labelField}</label><input type="number" name="${namaField}" placeholder="0" required inputmode="numeric">
+    </div>`;
+  document.getElementById(container).insertAdjacentHTML('beforeend', html);
+}
+tambahBaris('thermo'); tambahBaris('trx'); tambahBaris('masuk'); loadProduk();
+
+function showTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.card').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`[onclick="showTab('${id}')"]`).classList.add('active');
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0); // auto scroll ke atas pas ganti tab
+}
+
+function showMsg(text, type){
+  const msg = document.getElementById('msg');
+  msg.className = type; msg.innerText = text; msg.style.display = 'block';
+  setTimeout(()=>msg.style.display="none",3000);
+}
+
+function hitungTinggiBukti(data, produkArr){
+  let y = 110;
+  y += 30; // TANGGAL
+  if(data.SHIFT) y += 30;
+  if(data['NO SJ']) y += 30;
+  y += 40; // KETERANGAN
+  y += 20; // garis pemisah
+  y += 30; // "DAFTAR PRODUK:"
+  produkArr.forEach(p=>{
+    y += 25;
+    if(p.tf) y += 25;
+    if(p.box) y += 25;
+    if(p.qty) y += 25;
+    if(p.kirim) y += 25;
+    if(p.terima) y += 25;
+    y += 10;
+  });
+  y += 10 + 30; // garis pemisah + jarak sebelum total
+  let totalBox=0, totalQty=0, totalKirim=0, totalTerima=0;
+  produkArr.forEach(p=>{
+    totalBox += parseFloat(p.box)||0;
+    totalQty += parseFloat(p.qty)||0;
+    totalKirim += parseFloat(p.kirim)||0;
+    totalTerima += parseFloat(p.terima)||0;
+  });
+  if(totalBox>0) y += 30;
+  if(totalQty>0) y += 30;
+  if(totalKirim>0) y += 30;
+  if(totalTerima>0) y += 30;
+  return y + 30; // padding bawah
+}
+
+function buatGambarBukti(data, produkArr, buktiId){
+  const canvas = document.getElementById('canvasBukti');
+  const ctx = canvas.getContext('2d');
+  const lebar = 600;
+  let tinggi = hitungTinggiBukti(data, produkArr);
+  canvas.width = lebar; canvas.height = tinggi;
+
+  ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0,0,lebar,tinggi);
+  ctx.fillStyle = '#28A745'; ctx.fillRect(0,0,lebar,80);
+  ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 28px Arial';
+  const judulBukti = data._sheet === 'TRX FG' ? 'PENGIRIMAN' : `BUKTI INPUT ${data._sheet}`;
+  ctx.fillText(judulBukti, 20, 50);
+
+  let y = 110;
+  ctx.fillStyle = '#000'; ctx.font = '18px Arial';
+  ctx.fillText(`TGL: ${data.TANGGAL}`, 20, y); y+=30;
+  if(data.SHIFT) {ctx.fillText(`SHIFT: ${data.SHIFT}`, 20, y); y+=30;}
+  if(data['NO SJ']) {ctx.fillText(`NO SJ: ${data['NO SJ']}`, 20, y); y+=30;}
+  ctx.fillText(`KET: ${data.KETERANGAN}`, 20, y); y+=40;
+
+  ctx.strokeStyle = '#DDD'; ctx.beginPath(); ctx.moveTo(20,y); ctx.lineTo(580,y); ctx.stroke(); y+=20;
+  ctx.font = 'bold 20px Arial'; ctx.fillText('DAFTAR PRODUK:', 20, y); y+=30;
+  ctx.font = '16px Arial';
+
+  let totalBox = 0; let totalQty = 0; let totalKirim = 0; let totalTerima = 0;
+  produkArr.forEach((p,i)=>{
+    ctx.fillText(`${i+1}. ${p.produk}`, 20, y); y+=25;
+    if(p.tf){ ctx.fillText(`TF: ${p.tf}`, 40, y); y+=25; }
+    if(p.box){ ctx.fillText(`BOX: ${p.box}`, 40, y); totalBox += parseFloat(p.box) || 0; y+=25; }
+    if(p.qty){ ctx.fillText(`QTY: ${p.qty}`, 40, y); totalQty += parseFloat(p.qty) || 0; y+=25; }
+    if(p.kirim){ ctx.fillText(`KIRIM: ${p.kirim}`, 40, y); totalKirim += parseFloat(p.kirim) || 0; y+=25; }
+    if(p.terima){ ctx.fillText(`TERIMA: ${p.terima}`, 40, y); totalTerima += parseFloat(p.terima) || 0; y+=25; }
+    y+=10;
+  });
+  y+=10;
+  ctx.strokeStyle = '#DDD'; ctx.beginPath(); ctx.moveTo(20,y); ctx.lineTo(580,y); ctx.stroke(); y+=30;
+  ctx.font = 'bold 18px Arial';
+  if(totalBox > 0) {ctx.fillText(`TOTAL BOX: ${totalBox}`, 20, y); y+=30;}
+  if(totalQty > 0) {ctx.fillText(`TOTAL QTY: ${totalQty}`, 20, y); y+=30;}
+  if(totalKirim > 0) {ctx.fillText(`TOTAL KIRIM: ${totalKirim}`, 20, y); y+=30;}
+  if(totalTerima > 0) {ctx.fillText(`TOTAL TERIMA: ${totalTerima}`, 20, y); y+=30;}
+
+  const imgURL = canvas.toDataURL('image/png');
+  const area = document.getElementById(buktiId);
+  let html = `<h4>BUKTI INPUT</h4>`;
+  html += `<img src="${imgURL}" style="max-width:100%;border-radius:8px;">`;
+  html += `<button class="btn-download" onclick="downloadGambar('${imgURL}','BUKTI_${data._sheet}')">💾 DOWNLOAD GAMBAR</button>`;
+  html += `<button class="btn-wa" onclick="shareGambarLangsung('BUKTI_${data._sheet}')">📱 KIRIM KE WA</button>`;
+  area.innerHTML = html; area.style.display = 'block'; area.scrollIntoView({behavior: "smooth"});
+}
+
+function shareGambarLangsung(namaFile){
+  const canvas = document.getElementById('canvasBukti');
+  if (!navigator.share) {
+    alert('HP KAMU TIDAK SUPPORT SHARE LANGSUNG. SILAKAN DOWNLOAD DULU');
+    return;
+  }
+  canvas.toBlob((blob) => {
+    const file = new File([blob], namaFile + ".png", { type: "image/png" });
+    const shareData = { files: [file], title: 'Bukti Input', text: 'Bukti Input Produksi' };
+    if (navigator.canShare && navigator.canShare(shareData)) {
+      navigator.share(shareData).catch(err => console.log('Share dibatalkan', err));
+    } else {
+      alert('TIDAK BISA SHARE FILE. SILAKAN DOWNLOAD DULU');
+    }
+  }, 'image/png');
+}
+
+function downloadGambar(url, nama){
+  const a = document.createElement('a');
+  a.href = url; a.download = nama+'.png'; a.click();
+}
+
+function handleSubmit(formId, buktiId, jenis){
+  document.getElementById(formId).addEventListener('submit', e=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    showMsg("MENYIMPAN...", "");
+    const produk_list = [];
+    e.target.querySelectorAll('.produk-item').forEach(item=>{
+      produk_list.push({
+        produk: item.querySelector('[name=produk]').value,
+        tf: item.querySelector('[name=tf]')?.value,
+        box: item.querySelector('[name=box]')?.value,
+        qty: item.querySelector('[name=qty]')?.value,
+        kirim: item.querySelector('[name=kirim]')?.value,
+        terima: item.querySelector('[name=terima]')?.value
+      })
+    });
+    fd.append('produk_list', JSON.stringify(produk_list));
+    fetch(SCRIPT_URL, {method:'POST', mode:'cors', body: fd})
+.then(res=>res.json()).then(res=>{
+      if(res.status==='OK'){
+        showMsg(`✅ ${res.count} DATA BERHASIL DISIMPAN`, 'sukses');
+        buatGambarBukti(res.data, res.produk, buktiId);
+        e.target.reset();
+        const namaKontainer = jenis==='thermo' ? 'Thermo' : (jenis==='masuk' ? 'Masuk' : 'Trx');
+        document.getElementById(`listProduk${namaKontainer}`).innerHTML = '';
+        tambahBaris(jenis);
+        document.getElementById('tgl1').valueAsDate = new Date();
+        document.getElementById('tgl2').valueAsDate = new Date();
+        document.getElementById('tgl3').valueAsDate = new Date();
+      }
+      else if(res.status==='ERROR'){ showMsg(`❌ ERROR: ${res.msg}`, 'gagal'); }
+      else { showMsg(`❌ GAGAL: DATA DUPLICATE`, 'gagal'); }
+    }).catch((err)=>{ console.error(err); showMsg('❌ GAGAL KONEKSI KE SERVER', 'gagal'); });
+  })
+}
+
+document.getElementById('formProduk').addEventListener('submit', e=>{
+  e.preventDefault();
+  const fd = new FormData(e.target); fd.append('action','tambah_produk');
+  fetch(SCRIPT_URL, {method:'POST', mode:'cors', body: fd})
+.then(res=>res.json()).then(res=>{
+    if(res.status==='OK'){ showMsg('✅ PRODUK BERHASIL DITAMBAH', 'sukses'); loadProduk(); e.target.reset(); showTab('thermo'); }
+    else{ showMsg('❌ PRODUK SUDAH ADA', 'gagal'); }
+  })
+})
+handleSubmit('formThermo','buktiThermo','thermo');
+handleSubmit('formTrx','buktiTrx','trx');
+handleSubmit('formMasuk','buktiMasuk','masuk');
+</script>
+</body>
+</html>
