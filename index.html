@@ -135,13 +135,11 @@ function tambahBaris(jenis){
   html += `<label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric">`;
   html += `<label>SALDO AKHIR</label><input type="number" name="saldo akhir" placeholder="0" required inputmode="numeric">`;
   
-  if(jenis === 'extruder'){ html += `<label>EXT</label><select name="ext" class="select-ext" required>${extOptions}</select>`; }
-  
-  html += `<label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>`;
-  html += `<label>QTY</label><input type="number" name="qty" placeholder="0" required inputmode="numeric">`;
-  html += `<label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric"></div>`;
   
   
+  document.getElementById(container).insertAdjacentHTML('beforeend', html);
+}
+tambahBaris('thermo'); tambahBaris('giling'); tambahBaris('extruder'); loadProduk();
   
 function showTab(id){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
