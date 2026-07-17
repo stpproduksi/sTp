@@ -7,28 +7,22 @@
 :root{color-scheme:light}
 *{box-sizing:border-box} 
 body{font-family:Arial,sans-serif;padding:0;background:#F0F2F5;margin:0;text-transform:uppercase}
-
 .tabs{display:flex;background:#DDD;position:sticky;top:0;z-index:999}
 .tab{flex:1;padding:16px;text-align:center;background:#DDD;border:none;font-weight:bold;font-size:14px;cursor:pointer;color:#555}
 .tab.active{background:#28A745;color:white}
-
 .card{background:white;padding:15px;display:none;margin-bottom:70px}
 .card.active{display:block} 
 h3{display:none}
-
 label{font-weight:bold;font-size:14px;margin-top:8px;display:block}
 input,select,button{width:100%;padding:14px;margin:6px 0 12px 0;border:1px solid #DDD;border-radius:8px;font-size:16px;text-transform:uppercase;background:#F5F5F5; position:relative; z-index:1}
 select{appearance:none; -webkit-appearance:none; background-image:url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat:no-repeat; background-position:right 10px center;}
-
 button{background:#28A745;color:white;border:none;font-weight:bold;cursor:pointer}
 .btn-tambah{background:#007BFF}
 .btn-wa{background:#25D366}
 .btn-download{background:#FFC107;color:#000}
 .btn-hapus{background:#DC3545;padding:8px 12px;font-size:16px;width:auto;position:absolute;top:-5px;right:-5px;border-radius:8px;z-index:2}
-
 #msg{position:fixed;bottom:10px;left:5%;width:90%;background:white;padding:12px;border-radius:8px;text-align:center;font-weight:bold;box-shadow:0 2px 10px rgba(0,0,0,0.2);z-index:9999;display:none}
 .sukses{color:green}.gagal{color:red}
-
 .produk-item{border:2px dashed #28A745;padding:15px 15px 5px 15px;border-radius:12px;margin-bottom:15px;background:#F0FFF1;position:relative}
 .buktiArea{display:none;background:#F9FFF9;padding:15px;border:2px dashed #28A745;border-radius:8px;margin-top:15px;text-align:center}
 .buktiArea canvas{background:white;border:1px solid #CCC;border-radius:8px;margin-bottom:10px;max-width:100%}
@@ -127,12 +121,25 @@ function tambahBaris(jenis){
 
   let html = `<div class="produk-item" id="item-${id}"><button type="button" class="btn-hapus" onclick="document.getElementById('item-${id}').remove()">X</button>`;
   
-  if(jenis === 'thermo'){ html += `<label>TF</label><select name="tf" class="select-tf" required>${tfOptions}</select>`; }
-  if(jenis === 'extruder'){ html += `<label>EXT</label><select name="ext" class="select-ext" required>${extOptions}</select>`; }
-  
-  html += `<label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>`;
-  html += `<label>QTY</label><input type="number" name="qty" placeholder="0" required inputmode="numeric">`;
-  html += `<label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric"></div>`;
+  if(jenis === 'thermo'){ 
+    html += `<label>TF</label><select name="tf" class="select-tf" required>${tfOptions}</select>`;
+    html += `<label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>`;
+    html += `<label>BOX</label><input type="number" name="box" placeholder="0" required inputmode="numeric">`;
+    html += `<label>MASUK</label><input type="number" name="masuk" placeholder="0" required inputmode="numeric">`;
+    html += `<label>GRAM</label><input type="number" name="gram" placeholder="0" required inputmode="numeric">`;
+    html += `<label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric"></div>`;
+  }
+  if(jenis === 'giling'){ 
+    html += `<label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>`;
+    html += `<label>QTY</label><input type="number" name="qty" placeholder="0" required inputmode="numeric">`;
+    html += `<label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric"></div>`;
+  }
+  if(jenis === 'extruder'){ 
+    html += `<label>EXT</label><select name="ext" class="select-ext" required>${extOptions}</select>`;
+    html += `<label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>`;
+    html += `<label>QTY</label><input type="number" name="qty" placeholder="0" required inputmode="numeric">`;
+    html += `<label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric"></div>`;
+  }
   
   document.getElementById(container).insertAdjacentHTML('beforeend', html);
 }
@@ -154,16 +161,14 @@ function showMsg(text, type){
 
 function hitungTinggiBukti(data, produkArr){
   let y = 110;
-  y += 30; // TANGGAL
-  if(data.SHIFT) y += 30;
-  y += 20; y += 30;
+  y += 30; if(data.SHIFT) y += 30; y += 20; y += 30;
   produkArr.forEach(p=>{
-    y += 25; if(p.tf) y += 25; if(p.ext) y += 25; if(p.qty) y += 25; if(p.waste) y += 25; y += 10;
+    y += 25; if(p.tf) y += 25; if(p.ext) y += 25; if(p.box) y += 25; if(p.masuk) y += 25; if(p.gram) y += 25; if(p.qty) y += 25; if(p.waste) y += 25; y += 10;
   });
   y += 10 + 30; 
-  let totalQty=0, totalWaste=0;
-  produkArr.forEach(p=>{ totalQty += parseFloat(p.qty)||0; totalWaste += parseFloat(p.waste)||0; });
-  if(totalQty>0) y += 30; if(totalWaste>0) y += 30;
+  let totalBox=0, totalMasuk=0, totalGram=0, totalQty=0, totalWaste=0;
+  produkArr.forEach(p=>{ totalBox += parseFloat(p.box)||0; totalMasuk += parseFloat(p.masuk)||0; totalGram += parseFloat(p.gram)||0; totalQty += parseFloat(p.qty)||0; totalWaste += parseFloat(p.waste)||0; });
+  if(totalBox>0) y += 30; if(totalMasuk>0) y += 30; if(totalGram>0) y += 30; if(totalQty>0) y += 30; if(totalWaste>0) y += 30;
   return y + 30;
 }
 
@@ -188,11 +193,14 @@ function buatGambarBukti(data, produkArr, buktiId){
   ctx.font = 'bold 20px Arial'; ctx.fillText('DAFTAR PRODUK:', 20, y); y+=30;
   ctx.font = '16px Arial';
 
-  let totalQty = 0; let totalWaste = 0;
+  let totalBox = 0; let totalMasuk = 0; let totalGram = 0; let totalQty = 0; let totalWaste = 0;
   produkArr.forEach((p,i)=>{
     ctx.fillText(`${i+1}. ${p.produk}`, 20, y); y+=25;
     if(p.tf){ ctx.fillText(`TF: ${p.tf}`, 40, y); y+=25; }
     if(p.ext){ ctx.fillText(`EXT: ${p.ext}`, 40, y); y+=25; }
+    if(p.box){ ctx.fillText(`BOX: ${p.box}`, 40, y); totalBox += parseFloat(p.box) || 0; y+=25; }
+    if(p.masuk){ ctx.fillText(`MASUK: ${p.masuk}`, 40, y); totalMasuk += parseFloat(p.masuk) || 0; y+=25; }
+    if(p.gram){ ctx.fillText(`GRAM: ${p.gram}`, 40, y); totalGram += parseFloat(p.gram) || 0; y+=25; }
     if(p.qty){ ctx.fillText(`QTY: ${p.qty}`, 40, y); totalQty += parseFloat(p.qty) || 0; y+=25; }
     if(p.waste){ ctx.fillText(`WASTE: ${p.waste}`, 40, y); totalWaste += parseFloat(p.waste) || 0; y+=25; }
     y+=10;
@@ -200,6 +208,9 @@ function buatGambarBukti(data, produkArr, buktiId){
   y+=10;
   ctx.strokeStyle = '#DDD'; ctx.beginPath(); ctx.moveTo(20,y); ctx.lineTo(580,y); ctx.stroke(); y+=30;
   ctx.font = 'bold 18px Arial';
+  if(totalBox > 0) {ctx.fillText(`TOTAL BOX: ${totalBox}`, 20, y); y+=30;}
+  if(totalMasuk > 0) {ctx.fillText(`TOTAL MASUK: ${totalMasuk}`, 20, y); y+=30;}
+  if(totalGram > 0) {ctx.fillText(`TOTAL GRAM: ${totalGram}`, 20, y); y+=30;}
   if(totalQty > 0) {ctx.fillText(`TOTAL QTY: ${totalQty}`, 20, y); y+=30;}
   if(totalWaste > 0) {ctx.fillText(`TOTAL WASTE: ${totalWaste}`, 20, y); y+=30;}
 
@@ -216,8 +227,8 @@ function shareGambarLangsung(namaFile){
   const canvas = document.getElementById('canvasBukti');
   if (!navigator.share) { alert('HP KAMU TIDAK SUPPORT SHARE LANGSUNG. SILAKAN DOWNLOAD DULU'); return; }
   canvas.toBlob((blob) => {
-    const file = new File([blob], namaFile + ".png", { type: "image/png" });
-    const shareData = { files: [file], title: 'Bukti Input', text: 'Bukti Input Produksi' };
+    const file = new File(, namaFile + ".png", { type: "image/png" });
+    const shareData = { files: , title: 'Bukti Input', text: 'Bukti Input Produksi' };
     if (navigator.canShare && navigator.canShare(shareData)) {
       navigator.share(shareData).catch(err => console.log('Share dibatalkan', err));
     } else { alert('TIDAK BISA SHARE FILE. SILAKAN DOWNLOAD DULU'); }
@@ -240,7 +251,10 @@ function handleSubmit(formId, buktiId, jenis){
         produk: item.querySelector('[name=produk]').value,
         tf: item.querySelector('[name=tf]')?.value || "",
         ext: item.querySelector('[name=ext]')?.value || "",
-        qty: item.querySelector('[name=qty]').value,
+        box: item.querySelector('[name=box]')?.value || "",
+        masuk: item.querySelector('[name=masuk]')?.value || "",
+        gram: item.querySelector('[name=gram]')?.value || "",
+        qty: item.querySelector('[name=qty]')?.value || "",
         waste: item.querySelector('[name=waste]').value
       })
     });
