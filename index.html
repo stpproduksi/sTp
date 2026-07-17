@@ -140,25 +140,6 @@ function tambahBaris(jenis){
 }
 tambahBaris('thermo'); tambahBaris('trx'); tambahBaris('masuk'); loadProduk();
   
-function tambahBaris(jenis){
-  const container = jenis === 'trxfg'? 'listProdukThermo' : (jenis === 'masuk' ? 'listProdukMasuk' : 'listProdukTrx');
-  const id = Date.now();
-  let options = '<option value="">PILIH PRODUK</option>';
-  masterProduk.forEach(p=> options += `<option>${p}</option>`);
-  const tfOptions = '<option value="">PILIH TF</option><option>TF4</option><option>TF5</option><option>TF6</option><option>TF7</option><option>TF8</option><option>TF9</option><option>TF10</option>';
-  const namaField = jenis==='trxfg' ? 'box' : (jenis==='masuk' ? 'terima' : 'kirim');
-  const labelField = jenis==='trxfg' ? 'BOX' : (jenis==='masuk' ? 'TERIMA' : 'KIRIM');
-  const html = `
-  <div class="produk-item" id="item-${id}">
-    <button type="button" class="btn-hapus" onclick="document.getElementById('item-${id}').remove()">X</button>
-    ${jenis==='trxfg'?`<label>TF</label><select name="tf" class="select-tf" required>${tfOptions}</select>`:''}
-    <label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>
-    <label>${labelField}</label><input type="number" name="${namaField}" placeholder="0" required inputmode="numeric">
-    </div>`;
-  document.getElementById(container).insertAdjacentHTML('beforeend', html);
-}
-tambahBaris('thermo'); tambahBaris('trx'); tambahBaris('masuk'); loadProduk();
-  
 function showTab(id){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.card').forEach(c=>c.classList.remove('active'));
