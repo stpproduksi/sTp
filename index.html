@@ -140,7 +140,7 @@ function tambahBaris(jenis){
   
   document.getElementById(container).insertAdjacentHTML('beforeend', html);
 }
-tambahBaris('thermo'); tambahBaris('giling'); tambahBaris('extruder'); loadProduk();
+tambahBaris('thermo'); loadProduk();
   
 function showTab(id){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
