@@ -141,9 +141,7 @@ function tambahBaris(jenis){
   html += `<label>QTY</label><input type="number" name="qty" placeholder="0" required inputmode="numeric">`;
   html += `<label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric"></div>`;
   
-  document.getElementById(container).insertAdjacentHTML('beforeend', html);
-}
-tambahBaris('thermo'); loadProduk();
+  
   
 function showTab(id){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
