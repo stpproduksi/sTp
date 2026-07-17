@@ -38,8 +38,8 @@ button{background:#28A745;color:white;border:none;font-weight:bold;cursor:pointe
 
 <div class="tabs">
   <button class="tab active" onclick="showTab('thermo')">HASIL THERMO</button>
-  <button class="tab" onclick="showTab('trxfg')">SHEET NAIK TF</button>
-  <button class="tab" onclick="showTab('masuk')">HASIL EXTRUDER</button>
+  <button class="tab" onclick="showTab('giling')">GILING</button>
+  <button class="tab" onclick="showTab('extruder')">EXTRUDER</button>
   <button class="tab" onclick="showTab('produk')">TAMBAH PRODUK</button>
 </div>
 
@@ -56,30 +56,30 @@ button{background:#28A745;color:white;border:none;font-weight:bold;cursor:pointe
   <div id="buktiThermo" class="buktiArea"></div>
 </div>
 
-<div id="trxfg" class="card">
-  <h3>INPUT SHEET NAIK TF</h3>
-  <form id="formTrx">
-    <input type="hidden" name="_sheet" value="SHEET NAIK TF">
+<div id="giling" class="card">
+  <h3>INPUT GILING</h3>
+  <form id="formGiling">
+    <input type="hidden" name="_sheet" value="GILING">
     <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl2" required>
     <label>SHIFT</label><select name="SHIFT" required><option value="">PILIH</option><option>1</option><option>2</option><option>3</option></select>
-    <div id="listProdukTrx"></div>
-    <button type="button" class="btn-tambah" onclick="tambahBaris('trx')">+ TAMBAH PRODUK</button>
+    <div id="listProdukGiling"></div>
+    <button type="button" class="btn-tambah" onclick="tambahBaris('giling')">+ TAMBAH PRODUK</button>
     <button type="submit">SIMPAN SEMUA</button>
   </form>
-  <div id="buktiTrx" class="buktiArea"></div>
+  <div id="buktiGiling" class="buktiArea"></div>
 </div>
 
-<div id="masuk" class="card">
-  <h3>INPUT HASIL EXTRUDER</h3>
-  <form id="formMasuk">
-    <input type="hidden" name="_sheet" value="HASIL EXTRUDER">
+<div id="extruder" class="card">
+  <h3>INPUT EXTRUDER</h3>
+  <form id="formExtruder">
+    <input type="hidden" name="_sheet" value="EXTRUDER">
     <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl3" required>
     <label>SHIFT</label><select name="SHIFT" required><option value="">PILIH</option><option>1</option><option>2</option><option>3</option></select>
-    <div id="listProdukMasuk"></div>
-    <button type="button" class="btn-tambah" onclick="tambahBaris('masuk')">+ TAMBAH PRODUK</button>
+    <div id="listProdukExtruder"></div>
+    <button type="button" class="btn-tambah" onclick="tambahBaris('extruder')">+ TAMBAH PRODUK</button>
     <button type="submit">SIMPAN SEMUA</button>
   </form>
-  <div id="buktiMasuk" class="buktiArea"></div>
+  <div id="buktiExtruder" class="buktiArea"></div>
 </div>
 
 <div id="produk" class="card">
@@ -117,24 +117,26 @@ function updateSemuaDropdown(){
 }
 
 function tambahBaris(jenis){
-  const container = jenis === 'thermo'? 'listProdukThermo' : (jenis === 'masuk' ? 'listProdukMasuk' : 'listProdukTrx');
+  const container = jenis === 'thermo'? 'listProdukThermo' : (jenis === 'giling' ? 'listProdukGiling' : 'listProdukExtruder');
   const id = Date.now();
   let options = '<option value="">PILIH PRODUK</option>';
   masterProduk.forEach(p=> options += `<option>${p}</option>`);
+  
+  const extOptions = '<option value="">PILIH EXT</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option>';
   const tfOptions = '<option value="">PILIH TF</option><option>TF4</option><option>TF5</option><option>TF6</option><option>TF7</option><option>TF8</option><option>TF9</option><option>TF10</option>';
-  const html = `
-  <div class="produk-item" id="item-${id}">
-    <button type="button" class="btn-hapus" onclick="document.getElementById('item-${id}').remove()">X</button>
-    <label>TF</label><select name="tf" class="select-tf" required>${tfOptions}</select>
-    <label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>
-    <label>BOX</label><input type="number" name="box" placeholder="0" required inputmode="numeric">
-    <label>MASUK</label><input type="number" name="masuk" placeholder="0" required inputmode="numeric">
-    <label>GRAM</label><input type="number" name="gram" placeholder="0" required inputmode="numeric">
-    <label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric">
-    </div>`;
+
+  let html = `<div class="produk-item" id="item-${id}"><button type="button" class="btn-hapus" onclick="document.getElementById('item-${id}').remove()">X</button>`;
+  
+  if(jenis === 'thermo'){ html += `<label>TF</label><select name="tf" class="select-tf" required>${tfOptions}</select>`; }
+  if(jenis === 'extruder'){ html += `<label>EXT</label><select name="ext" class="select-ext" required>${extOptions}</select>`; }
+  
+  html += `<label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>`;
+  html += `<label>QTY</label><input type="number" name="qty" placeholder="0" required inputmode="numeric">`;
+  html += `<label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric"></div>`;
+  
   document.getElementById(container).insertAdjacentHTML('beforeend', html);
 }
-tambahBaris('thermo'); tambahBaris('trx'); tambahBaris('masuk'); loadProduk();
+tambahBaris('thermo'); tambahBaris('giling'); tambahBaris('extruder'); loadProduk();
   
 function showTab(id){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -154,29 +156,14 @@ function hitungTinggiBukti(data, produkArr){
   let y = 110;
   y += 30; // TANGGAL
   if(data.SHIFT) y += 30;
-  y += 20; // garis pemisah
-  y += 30; // "DAFTAR PRODUK:"
+  y += 20; y += 30;
   produkArr.forEach(p=>{
-    y += 25; // produk
-    if(p.tf) y += 25;
-    if(p.box) y += 25;
-    if(p.masuk) y += 25;
-    if(p.gram) y += 25;
-    if(p.waste) y += 25;
-    y += 10;
+    y += 25; if(p.tf) y += 25; if(p.ext) y += 25; if(p.qty) y += 25; if(p.waste) y += 25; y += 10;
   });
   y += 10 + 30; 
-  let totalBox=0, totalMasuk=0, totalGram=0, totalWaste=0;
-  produkArr.forEach(p=>{
-    totalBox += parseFloat(p.box)||0;
-    totalMasuk += parseFloat(p.masuk)||0;
-    totalGram += parseFloat(p.gram)||0;
-    totalWaste += parseFloat(p.waste)||0;
-  });
-  if(totalBox>0) y += 30;
-  if(totalMasuk>0) y += 30;
-  if(totalGram>0) y += 30;
-  if(totalWaste>0) y += 30;
+  let totalQty=0, totalWaste=0;
+  produkArr.forEach(p=>{ totalQty += parseFloat(p.qty)||0; totalWaste += parseFloat(p.waste)||0; });
+  if(totalQty>0) y += 30; if(totalWaste>0) y += 30;
   return y + 30;
 }
 
@@ -201,22 +188,19 @@ function buatGambarBukti(data, produkArr, buktiId){
   ctx.font = 'bold 20px Arial'; ctx.fillText('DAFTAR PRODUK:', 20, y); y+=30;
   ctx.font = '16px Arial';
 
-  let totalBox = 0; let totalMasuk = 0; let totalGram = 0; let totalWaste = 0;
+  let totalQty = 0; let totalWaste = 0;
   produkArr.forEach((p,i)=>{
     ctx.fillText(`${i+1}. ${p.produk}`, 20, y); y+=25;
     if(p.tf){ ctx.fillText(`TF: ${p.tf}`, 40, y); y+=25; }
-    if(p.box){ ctx.fillText(`BOX: ${p.box}`, 40, y); totalBox += parseFloat(p.box) || 0; y+=25; }
-    if(p.masuk){ ctx.fillText(`MASUK: ${p.masuk}`, 40, y); totalMasuk += parseFloat(p.masuk) || 0; y+=25; }
-    if(p.gram){ ctx.fillText(`GRAM: ${p.gram}`, 40, y); totalGram += parseFloat(p.gram) || 0; y+=25; }
+    if(p.ext){ ctx.fillText(`EXT: ${p.ext}`, 40, y); y+=25; }
+    if(p.qty){ ctx.fillText(`QTY: ${p.qty}`, 40, y); totalQty += parseFloat(p.qty) || 0; y+=25; }
     if(p.waste){ ctx.fillText(`WASTE: ${p.waste}`, 40, y); totalWaste += parseFloat(p.waste) || 0; y+=25; }
     y+=10;
   });
   y+=10;
   ctx.strokeStyle = '#DDD'; ctx.beginPath(); ctx.moveTo(20,y); ctx.lineTo(580,y); ctx.stroke(); y+=30;
   ctx.font = 'bold 18px Arial';
-  if(totalBox > 0) {ctx.fillText(`TOTAL BOX: ${totalBox}`, 20, y); y+=30;}
-  if(totalMasuk > 0) {ctx.fillText(`TOTAL MASUK: ${totalMasuk}`, 20, y); y+=30;}
-  if(totalGram > 0) {ctx.fillText(`TOTAL GRAM: ${totalGram}`, 20, y); y+=30;}
+  if(totalQty > 0) {ctx.fillText(`TOTAL QTY: ${totalQty}`, 20, y); y+=30;}
   if(totalWaste > 0) {ctx.fillText(`TOTAL WASTE: ${totalWaste}`, 20, y); y+=30;}
 
   const imgURL = canvas.toDataURL('image/png');
@@ -230,18 +214,13 @@ function buatGambarBukti(data, produkArr, buktiId){
 
 function shareGambarLangsung(namaFile){
   const canvas = document.getElementById('canvasBukti');
-  if (!navigator.share) {
-    alert('HP KAMU TIDAK SUPPORT SHARE LANGSUNG. SILAKAN DOWNLOAD DULU');
-    return;
-  }
+  if (!navigator.share) { alert('HP KAMU TIDAK SUPPORT SHARE LANGSUNG. SILAKAN DOWNLOAD DULU'); return; }
   canvas.toBlob((blob) => {
     const file = new File([blob], namaFile + ".png", { type: "image/png" });
     const shareData = { files: [file], title: 'Bukti Input', text: 'Bukti Input Produksi' };
     if (navigator.canShare && navigator.canShare(shareData)) {
       navigator.share(shareData).catch(err => console.log('Share dibatalkan', err));
-    } else {
-      alert('TIDAK BISA SHARE FILE. SILAKAN DOWNLOAD DULU');
-    }
+    } else { alert('TIDAK BISA SHARE FILE. SILAKAN DOWNLOAD DULU'); }
   }, 'image/png');
 }
 
@@ -259,10 +238,9 @@ function handleSubmit(formId, buktiId, jenis){
     e.target.querySelectorAll('.produk-item').forEach(item=>{
       produk_list.push({
         produk: item.querySelector('[name=produk]').value,
-        tf: item.querySelector('[name=tf]').value,
-        box: item.querySelector('[name=box]').value,
-        masuk: item.querySelector('[name=masuk]').value,
-        gram: item.querySelector('[name=gram]').value,
+        tf: item.querySelector('[name=tf]')?.value || "",
+        ext: item.querySelector('[name=ext]')?.value || "",
+        qty: item.querySelector('[name=qty]').value,
         waste: item.querySelector('[name=waste]').value
       })
     });
@@ -273,7 +251,7 @@ function handleSubmit(formId, buktiId, jenis){
         showMsg(`✅ ${res.count} DATA BERHASIL DISIMPAN`, 'sukses');
         buatGambarBukti(res.data, res.produk, buktiId);
         e.target.reset();
-        const namaKontainer = jenis==='thermo' ? 'Thermo' : (jenis==='masuk' ? 'Masuk' : 'Trx');
+        const namaKontainer = jenis==='thermo' ? 'Thermo' : (jenis==='giling' ? 'Giling' : 'Extruder');
         document.getElementById(`listProduk${namaKontainer}`).innerHTML = '';
         tambahBaris(jenis);
         document.getElementById('tgl1').valueAsDate = new Date();
@@ -296,8 +274,8 @@ document.getElementById('formProduk').addEventListener('submit', e=>{
   })
 })
 handleSubmit('formThermo','buktiThermo','thermo');
-handleSubmit('formTrx','buktiTrx','trx');
-handleSubmit('formMasuk','buktiMasuk','masuk');
+handleSubmit('formGiling','buktiGiling','giling');
+handleSubmit('formExtruder','buktiExtruder','extruder');
 </script>
 </body>
 </html>
