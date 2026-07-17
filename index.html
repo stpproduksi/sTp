@@ -49,37 +49,8 @@ button{background:#28A745;color:white;border:none;font-weight:bold;cursor:pointe
     <input type="hidden" name="_sheet" value="HASIL THERMO">
     <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl1" required>
     <label>SHIFT</label><select name="SHIFT" required><option value="">PILIH</option><option>1</option><option>2</option><option>3</option></select>
-    <label>KETERANGAN</label><select name="KETERANGAN" required><option value="">PILIH</option><option>LAWANG</option><option>PANDAAN</option><option>KREBET</option></select>
     <div id="listProdukThermo"></div>
-    <button type="button" class="btn-tambah" onclick="tambahBaris('thermo')">+ TAMBAH PRODUK</button>
-    <button type="submit">SIMPAN SEMUA</button>
-  </form>
-  <div id="buktiThermo" class="buktiArea"></div>
-</div>
-
-<div id="trxfg" class="card">
-  <h3>INPUT TRX FG</h3>
-  <form id="formTrx">
-    <input type="hidden" name="_sheet" value="TRX FG">
-    <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl2" required>
-    <label>SHIFT</label><select name="SHIFT" required><option value="">PILIH</option><option>1</option><option>2</option><option>3</option></select>
-    <label>OPERATOR</label><input type="text" name="OPERATOR">
-    <label>KETERANGAN</label><select name="KETERANGAN" required><option value="">PILIH</option><option>EXT 1</option><option>EXT 2</option><option>EXT 3</option><option>EXT 4</option><option>EXT 5</option><option>EXT 6</option></select>
     <div id="listProdukTrx"></div>
-    <button type="button" class="btn-tambah" onclick="tambahBaris('trx')">+ TAMBAH PRODUK</button>
-    <button type="submit">SIMPAN SEMUA</button>
-  </form>
-  <div id="buktiTrx" class="buktiArea"></div>
-</div>
-
-<div id="masuk" class="card">
-  <h3>INPUT HASIL SHEET</h3>
-  <form id="formMasuk">
-    <input type="hidden" name="_sheet" value="HASIL SHEET">
-    <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl3" required>
-    <label>NO CARSHEET</label><input type="text" name="NO CARSHEET">
-    <label>OPERATOR</label><input type="text" name="OPERATOR">
-    <label>KETERANGAN</label><select name="KETERANGAN" required><option value="">PILIH</option><option>EXT 1</option><option>EXT 2</option><option>EXT 3</option><option>EXT 4</option><option>EXT 5</option><option>EXT 6</option></select>
     <div id="listProdukMasuk"></div>
     <button type="button" class="btn-tambah" onclick="tambahBaris('masuk')">+ TAMBAH PRODUK</button>
     <button type="submit">SIMPAN SEMUA</button>
