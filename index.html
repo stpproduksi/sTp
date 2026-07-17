@@ -128,6 +128,13 @@ function tambahBaris(jenis){
   let html = `<div class="produk-item" id="item-${id}"><button type="button" class="btn-hapus" onclick="document.getElementById('item-${id}').remove()">X</button>`;
   
   if(jenis === 'thermo'){ html += `<label>TF</label><select name="tf" class="select-tf" required>${tfOptions}</select>`; }
+
+  html += `<label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>`;
+  html += `<label>SHEET NAIK</label><input type="number" name="sheet naik" placeholder="0" required inputmode="numeric">`;
+  html += `<label>HASIL BOX</label><input type="number" name="hasil box" placeholder="0" required inputmode="numeric">`;
+  html += `<label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric">`;
+  html += `<label>SALDO AKHIR</label><input type="number" name="saldo akhir" placeholder="0" required inputmode="numeric">`;
+  
   if(jenis === 'extruder'){ html += `<label>EXT</label><select name="ext" class="select-ext" required>${extOptions}</select>`; }
   
   html += `<label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>`;
