@@ -118,7 +118,7 @@ function updateSemuaDropdown(){
 }
 
 function tambahBaris(jenis){
-  const container = jenis === 'thermo'? 'listProdukThermo' : (jenis === 'giling' ? 'listProdukGiling' : 'listProdukExtruder');
+  const container = jenis === 'thermo'? 'listProdukThermo' );
   const id = Date.now();
   let options = '<option value="">PILIH PRODUK</option>';
   masterProduk.forEach(p=> options += `<option>${p}</option>`);
