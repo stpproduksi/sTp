@@ -118,7 +118,7 @@ function updateSemuaDropdown(){
 }
 
 function tambahBaris(jenis){
-  const container = jenis === 'thermo'? 'listProdukThermo' );
+  const container = jenis === 'thermo'? 'listProdukThermo' : (jenis === 'giling' ? 'listProdukGiling' : 'listProdukExtruder');
   const id = Date.now();
   let options = '<option value="">PILIH PRODUK</option>';
   masterProduk.forEach(p=> options += `<option>${p}</option>`);
@@ -137,10 +137,8 @@ function tambahBaris(jenis){
   html += `<label>SALDO AKHIR</label><input type="number" name="saldo akhir" placeholder="0" required inputmode="numeric">`;
   
   if(jenis === 'extruder'){ html += `<label>EXT</label><select name="ext" class="select-ext" required>${extOptions}</select>`; }
-  
-  html += `<label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>`;
-  html += `<label>QTY</label><input type="number" name="qty" placeholder="0" required inputmode="numeric">`;
-  html += `<label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric"></div>`;
+
+
   
   document.getElementById(container).insertAdjacentHTML('beforeend', html);
 }
