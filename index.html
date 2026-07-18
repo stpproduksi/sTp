@@ -62,10 +62,6 @@ button{background:#28A745;color:white;border:none;font-weight:bold;cursor:pointe
     <input type="hidden" name="_sheet" value="GILING">
     <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl2" required>
     <label>SHIFT</label><select name="SHIFT" required><option value="">PILIH</option><option>1</option><option>2</option><option>3</option></select>
-    <label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>`;
-    <label>QTY</label><input type="number" name="qty" placeholder="0" required inputmode="numeric">`;
-    <label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric"></div>`;
-  
     <button type="button" class="btn-tambah" onclick="tambahBaris('giling')">+ TAMBAH PRODUK</button>
     <div id="listProdukGiling"></div>
     <button type="submit">SIMPAN SEMUA</button>
@@ -79,10 +75,6 @@ button{background:#28A745;color:white;border:none;font-weight:bold;cursor:pointe
     <input type="hidden" name="_sheet" value="EXTRUDER">
     <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl3" required>
     <label>SHIFT</label><select name="SHIFT" required><option value="">PILIH</option><option>1</option><option>2</option><option>3</option></select>
-    <label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>`;
-    <label>QTY</label><input type="number" name="qty" placeholder="0" required inputmode="numeric">`;
-    <label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric"></div>`;
-  
     <button type="button" class="btn-tambah" onclick="tambahBaris('extruder')">+ TAMBAH PRODUK</button>
     
     <div id="listProdukExtruder"></div>
@@ -144,6 +136,14 @@ function tambahBaris(jenis){
   html += `<label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric">`;
   html += `<label>SALDO AKHIR</label><input type="number" name="saldo akhir" placeholder="0" required inputmode="numeric">`;
   
+  if(jenis === 'extruder'){ html += `<label>EXT</label><select name="ext" class="select-ext" required>${extOptions}</select>`; }
+  
+  html += `<label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>`;
+  html += `<label>QTY</label><input type="number" name="qty" placeholder="0" required inputmode="numeric">`;
+  html += `<label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric"></div>`;
+  
+  document.getElementById(container).insertAdjacentHTML('beforeend', html);
+}
 tambahBaris('thermo'); tambahBaris('giling'); tambahBaris('extruder'); loadProduk();
   
 function showTab(id){
