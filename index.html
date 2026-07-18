@@ -49,9 +49,9 @@ button{background:#28A745;color:white;border:none;font-weight:bold;cursor:pointe
     <input type="hidden" name="_sheet" value="HASIL THERMO">
     <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl1" required>
     <label>SHIFT</label><select name="SHIFT" required><option value="">PILIH</option><option>1</option><option>2</option><option>3</option></select>
+    <div id="listProdukThermo"></div>
     <button type="button" class="btn-tambah" onclick="tambahBaris('thermo')">+ TAMBAH PRODUK</button>
     <button type="submit">SIMPAN SEMUA</button>
-    <div id="listProdukThermo"></div>
   </form>
   <div id="buktiThermo" class="buktiArea"></div>
 </div>
@@ -62,9 +62,9 @@ button{background:#28A745;color:white;border:none;font-weight:bold;cursor:pointe
     <input type="hidden" name="_sheet" value="GILING">
     <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl2" required>
     <label>SHIFT</label><select name="SHIFT" required><option value="">PILIH</option><option>1</option><option>2</option><option>3</option></select>
+    <div id="listProdukGiling"></div>
     <button type="button" class="btn-tambah" onclick="tambahBaris('giling')">+ TAMBAH PRODUK</button>
     <button type="submit">SIMPAN SEMUA</button>
-    <div id="listProdukGiling"></div>
   </form>
   <div id="buktiGiling" class="buktiArea"></div>
 </div>
@@ -75,9 +75,9 @@ button{background:#28A745;color:white;border:none;font-weight:bold;cursor:pointe
     <input type="hidden" name="_sheet" value="EXTRUDER">
     <label>TANGGAL</label><input type="date" name="TANGGAL" id="tgl3" required>
     <label>SHIFT</label><select name="SHIFT" required><option value="">PILIH</option><option>1</option><option>2</option><option>3</option></select>
+    <div id="listProdukExtruder"></div>
     <button type="button" class="btn-tambah" onclick="tambahBaris('extruder')">+ TAMBAH PRODUK</button>
     <button type="submit">SIMPAN SEMUA</button>
-    <div id="listProdukExtruder"></div>
   </form>
   <div id="buktiExtruder" class="buktiArea"></div>
 </div>
@@ -127,12 +127,20 @@ function tambahBaris(jenis){
 
   let html = `<div class="produk-item" id="item-${id}"><button type="button" class="btn-hapus" onclick="document.getElementById('item-${id}').remove()">X</button>`;
   
+  if(jenis === 'thermo'){ html += `<label>TF</label><select name="tf" class="select-tf" required>${tfOptions}</select>`; }
+
   html += `<label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>`;
   html += `<label>SHEET NAIK</label><input type="number" name="sheet naik" placeholder="0" required inputmode="numeric">`;
   html += `<label>HASIL BOX</label><input type="number" name="hasil box" placeholder="0" required inputmode="numeric">`;
   html += `<label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric">`;
   html += `<label>SALDO AKHIR</label><input type="number" name="saldo akhir" placeholder="0" required inputmode="numeric">`;
-
+  
+  if(jenis === 'extruder'){ html += `<label>EXT</label><select name="ext" class="select-ext" required>${extOptions}</select>`; }
+  
+  html += `<label>PRODUK</label><select name="produk" class="select-produk" required>${options}</select>`;
+  html += `<label>QTY</label><input type="number" name="qty" placeholder="0" required inputmode="numeric">`;
+  html += `<label>WASTE</label><input type="number" name="waste" placeholder="0" required inputmode="numeric"></div>`;
+  
   document.getElementById(container).insertAdjacentHTML('beforeend', html);
 }
 tambahBaris('thermo'); tambahBaris('giling'); tambahBaris('extruder'); loadProduk();
